@@ -1,0 +1,42 @@
+exclude: 'build|docs|node_modules|.cache|.git|.tox|.storybook/stories/assets|src/assets|((?:[^/]*/)*)(.svg)|((?:[^/]*/)*)(.xml)'
+default_stages: [commit]
+fail_fast: true
+default_language_version:
+  python: python3 # force all unspecified python hooks to run python3
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.1.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: ['--maxkb=10240']
+
+  - repo: https://github.com/windpioneers/pre-commit-hooks
+    rev: 0.0.5
+    hooks:
+      - id: check-branch-name
+        args:
+          - '^main$'
+          - '^dev$'
+          - '^staging$'
+          - '^devops/([a-z][a-z0-9]*)(-[a-z0-9]+)*$'
+          - '^doc/([a-z][a-z0-9]*)(-[a-z0-9]+)*$'
+          - '^feature/([a-z][a-z0-9]*)(-[a-z0-9]+)*$'
+          - '^fix/([a-z][a-z0-9]*)(-[a-z0-9]+)*$'
+          - '^hotfix/([a-z][a-z0-9]*)(-[a-z0-9]+)*$'
+          - '^refactor/([a-z][a-z0-9]*)(-[a-z0-9]+)*$'
+          - '^release/(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: 'v2.2.1'
+    hooks:
+      - id: prettier
+
+  - repo: https://github.com/octue/pre-commit-hooks
+    rev: 0.4.0
+    hooks:
+      - id: check-commit-message-is-conventional
+        stages: [commit-msg]
