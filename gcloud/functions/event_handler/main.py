@@ -6,6 +6,7 @@ from google.cloud.bigquery import Client
 
 
 BIGQUERY_EVENTS_TABLE = os.environ["BIGQUERY_EVENTS_TABLE"]
+BACKEND = "GoogleCloudPubSub"
 
 
 @functions_framework.cloud_event
@@ -18,21 +19,28 @@ def store_pub_sub_event_in_bigquery(cloud_event):
     """
     event = base64.b64decode(cloud_event.data["message"]["data"]).decode()
     attributes = cloud_event.data["message"]["attributes"]
-    client = Client()
 
-    errors = client.insert_rows(
+    backend_metadata = {
+        "message_id": cloud_event.data["messageId"],
+        "publish_time": cloud_event.data["publishTime"],
+        "ordering_key": cloud_event.data["orderingKey"],
+    }
+
+    errors = Client().insert_rows(
         table=BIGQUERY_EVENTS_TABLE,
         rows=[
             {
                 "event": event,
-                # All attributes.
                 "attributes": attributes,
-                # Attributes pulled out into columns for querying.
-                "question_uuid": attributes["question_uuid"],
-                "sender_type": attributes["sender_type"],
-                "version": attributes["version"],
-                "event_number": attributes["message_number"],
+                # Pull out some attributes into columns for querying.
                 "sender": attributes["sender"],
+                "sender_type": attributes["sender_type"],
+                "question_uuid": attributes["question_uuid"],
+                "version": attributes["version"],
+                "ordering_key": attributes["message_number"],
+                # Backend-specific metadata.
+                "backend": BACKEND,
+                "backend_metadata": backend_metadata,
             }
         ],
     )
