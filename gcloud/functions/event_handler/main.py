@@ -21,9 +21,9 @@ def store_pub_sub_event_in_bigquery(cloud_event):
     attributes = cloud_event.data["message"]["attributes"]
 
     backend_metadata = {
-        "message_id": cloud_event.data["messageId"],
-        "publish_time": cloud_event.data["publishTime"],
-        "ordering_key": cloud_event.data["orderingKey"],
+        "message_id": cloud_event.data["message"]["messageId"],
+        "publish_time": cloud_event.data["message"]["publishTime"],
+        "ordering_key": cloud_event.data["message"].get("orderingKey"),
     }
 
     errors = Client().insert_rows(
