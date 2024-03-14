@@ -1,2 +1,2 @@
-# octue-gcp
-Helpers for running octue on GCP
+# twined-gcp
+Helpers for running Twined on GCP.
