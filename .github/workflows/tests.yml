@@ -19,7 +19,7 @@ jobs:
           python-version: 3.12
 
       - name: Install requirements
-        run: pip install -r functions/event_handler/requirements.txt
+        run: pip install .
 
       - name: Run tests
         env:
