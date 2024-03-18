@@ -30,7 +30,7 @@ jobs:
 
   release:
     # This job will only run if the PR has been merged (and not closed without merging).
-    if: "github.event.pull_request.merged == true && !contains(github.event.pull_request.head.message, 'skipci')"
+    if: "github.event.pull_request.merged == true"
     needs: run-tests
     runs-on: ubuntu-latest
     steps:
@@ -50,3 +50,29 @@ jobs:
         body: ${{ github.event.pull_request.body }}
         draft: false
         prerelease: false
+
+  upload-source:
+    if: "github.event.pull_request.merged == true"
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: 'projects/899129607296/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
+          service_account: github-actions@octue-twined-gcp.iam.gserviceaccount.com
+
+      - name: Zip source code
+        run: zip -r event_handler_function_source.zip functions/event_handler
+
+      - name: Upload source zip file
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          path: "event_handler_function_source.zip"
+          destination: "twined-gcp/event_handler_function_source.zip"
