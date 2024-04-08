@@ -46,7 +46,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, no need to create your own.
       with:
-        tag_name: ${{ steps.get-package-version.outputs.version }}
+        tag_name: ${{ steps.get-package-version.outputs.package_version }}
         release_name: ${{ github.event.pull_request.title }}
         body: ${{ github.event.pull_request.body }}
         draft: false
