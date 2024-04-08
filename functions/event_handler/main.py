@@ -49,9 +49,11 @@ def store_pub_sub_event_in_bigquery(cloud_event):
     }
 
     logger.info("Attempting to store row: %r.", row)
-    errors = Client().insert_rows(table=BIGQUERY_EVENTS_TABLE, rows=[row])
+
+    client = Client()
+    errors = client.insert_rows(table=client.get_table(BIGQUERY_EVENTS_TABLE), rows=[row])
 
     if errors:
         raise ValueError(errors)
 
-    logger.info("Successfully stored row.")
+    logger.info("Successfully stored row in %r.", BIGQUERY_EVENTS_TABLE)
