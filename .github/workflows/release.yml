@@ -9,6 +9,8 @@ on:
 
 jobs:
   run-tests:
+    # This workflow will only run if the PR has been merged (and not closed without merging).
+    if: "github.event.pull_request.merged == true"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -28,8 +30,6 @@ jobs:
         run: python -m unittest
 
   release:
-    # This job will only run if the PR has been merged (and not closed without merging).
-    if: "github.event.pull_request.merged == true"
     needs: run-tests
     runs-on: ubuntu-latest
     steps:
@@ -55,7 +55,6 @@ jobs:
       package_version: ${{ steps.get-package-version.outputs.package_version }}
 
   upload-source:
-    if: "github.event.pull_request.merged == true"
     needs: release
     runs-on: ubuntu-latest
     permissions:
