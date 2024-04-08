@@ -2,11 +2,10 @@ name: Release the package on merge into main
 
 # Only trigger when a pull request into main branch is closed.
 on:
-#  pull_request:
-#    types: [closed]
-#    branches:
-#      - main
-  push:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
 
 jobs:
   run-tests:
@@ -56,7 +55,7 @@ jobs:
       package_version: ${{ steps.get-package-version.outputs.package_version }}
 
   upload-source:
-#    if: "github.event.pull_request.merged == true"
+    if: "github.event.pull_request.merged == true"
     needs: release
     runs-on: ubuntu-latest
     permissions:
