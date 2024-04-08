@@ -1,2 +1,3 @@
-# octue-gcp
-Helpers for running octue on GCP
+# twined-gcp
+
+Helpers for running [Twined](https://octue.com/tools) on GCP.

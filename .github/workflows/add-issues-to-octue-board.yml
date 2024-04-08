@@ -1,0 +1,15 @@
+name: add-issues-to-octue-board
+
+on:
+  issues:
+    types: [opened, reopened, transferred]
+
+jobs:
+  add-issues-to-octue-board:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add to Board
+        uses: actions/add-to-project@v0.5.0
+        with:
+          project-url: https://github.com/orgs/octue/projects/22
+          github-token: ${{ secrets.OCTUE_PROJECT_ISSUES_TOKEN }}

@@ -128,3 +128,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+.idea
+
+gcp-credentials.json
+.terraform*
