@@ -33,11 +33,14 @@ def store_pub_sub_event_in_bigquery(cloud_event):
                 "event": event,
                 "attributes": attributes,
                 # Pull out some attributes into columns for querying.
+                "uuid": attributes["uuid"],
+                "originator": attributes["originator"],
                 "sender": attributes["sender"],
                 "sender_type": attributes["sender_type"],
+                "sender_sdk_version": attributes["sender_sdk_version"],
+                "recipient": attributes["recipient"],
                 "question_uuid": attributes["question_uuid"],
-                "version": attributes["version"],
-                "ordering_key": attributes["message_number"],
+                "order": attributes["order"],
                 # Backend-specific metadata.
                 "backend": BACKEND,
                 "backend_metadata": backend_metadata,
