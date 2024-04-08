@@ -31,7 +31,7 @@ jobs:
 
   release:
     # This job will only run if the PR has been merged (and not closed without merging).
-    if: "github.event.pull_request.merged == true"
+#    if: "github.event.pull_request.merged == true"
     needs: run-tests
     runs-on: ubuntu-latest
     steps:
