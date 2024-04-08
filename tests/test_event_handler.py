@@ -10,14 +10,9 @@ from tests.mocks import MockBigQueryClient, MockCloudEvent
 REPOSITORY_ROOT = os.path.dirname(os.path.dirname(__file__))
 
 
-# # Manually add the cloud_functions package to the path (its imports have to be done in a certain way for Google Cloud
-# # Functions to accept them that doesn't work when running/testing the package locally).
-# sys.path.insert(0, os.path.abspath(os.path.join(REPOSITORY_ROOT, "functions", "event_handler")))
-# from functions.event_handler.main import store_pub_sub_event_in_bigquery
-
-
 class TestEventHandler(unittest.TestCase):
     def test_store_pub_sub_event_in_bigquery(self):
+        """Test that the `event_handler` cloud function can receive, parse, and store an event in BigQuery."""
         cloud_event = MockCloudEvent(
             data={
                 "message": {

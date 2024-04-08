@@ -6,7 +6,7 @@ class MockCloudEvent:
     data: dict
 
 
-# This class is duplicated from `data-gateway` (see ATTRIBUTIONS.md).
+# This class is duplicated from `aerosense-ai/data-gateway` (see ATTRIBUTIONS.md).
 class MockBigQueryClient:
     def __init__(self, expected_query_results=None):
         self.expected_query_results = expected_query_results or [[]]
@@ -51,7 +51,7 @@ class MockBigQueryClient:
         return result
 
 
-# This class is duplicated from `data-gateway` (see ATTRIBUTIONS.md).
+# This class is duplicated from `aerosense-ai/data-gateway` (see ATTRIBUTIONS.md).
 class MockQueryResult:
     def __init__(self, result):
         self._result = result
