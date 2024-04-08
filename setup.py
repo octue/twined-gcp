@@ -4,7 +4,7 @@ from setuptools import setup
 setup(
     name="twined-gcp",
     version="0.2.0",
-    author="cortadocodes <cortado.codes@protonmail.com>",
+    author="Marcus Lugg <marcus@octue.com>",
     install_requires=[
         "setuptools",
         # Requirements duplicated from cloud functions.
