@@ -16,7 +16,7 @@ class TestEventHandler(unittest.TestCase):
         cloud_event = MockCloudEvent(
             data={
                 "message": {
-                    "data": base64.b64encode(b"some-data"),
+                    "data": base64.b64encode(b'{"some": "data"}'),
                     "attributes": {
                         "uuid": "c8bda9fa-f072-4330-92b1-96920d06b28d",
                         "originator": "octue/test-service:5.6.3",
@@ -41,7 +41,7 @@ class TestEventHandler(unittest.TestCase):
         self.assertEqual(
             mock_big_query_client.inserted_rows[0][0],
             {
-                "event": "some-data",
+                "event": {"some": "data"},
                 "other_attributes": {
                     "uuid": "c8bda9fa-f072-4330-92b1-96920d06b28d",
                 },
