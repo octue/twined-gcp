@@ -1,4 +1,5 @@
 import base64
+import json
 import logging
 import os
 import sys
@@ -24,7 +25,7 @@ def store_pub_sub_event_in_bigquery(cloud_event):
     :return None:
     """
     logger.info("Received event.")
-    event = base64.b64decode(cloud_event.data["message"]["data"]).decode()
+    event = json.loads(base64.b64decode(cloud_event.data["message"]["data"]).decode())
     attributes = cloud_event.data["message"]["attributes"]
 
     backend_metadata = {
