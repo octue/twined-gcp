@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name="twined-gcp",
-    version="0.2.0",
+    version="0.3.0",
     author="Marcus Lugg <marcus@octue.com>",
     install_requires=[
         "setuptools",
@@ -11,4 +11,5 @@ setup(
         "functions-framework==3.*",
         "google-cloud-bigquery>=3.18.0,<=4",
     ],
+    packages=["functions"],
 )

@@ -1,11 +1,13 @@
 import base64
 import logging
 import os
+import sys
 
 import functions_framework
 from google.cloud.bigquery import Client
 
 
+logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -33,16 +35,15 @@ def store_pub_sub_event_in_bigquery(cloud_event):
 
     row = {
         "event": event,
-        "attributes": attributes,
+        "other_attributes": attributes,
         # Pull out some attributes into columns for querying.
-        "uuid": attributes["uuid"],
-        "originator": attributes["originator"],
-        "sender": attributes["sender"],
-        "sender_type": attributes["sender_type"],
-        "sender_sdk_version": attributes["sender_sdk_version"],
-        "recipient": attributes["recipient"],
-        "question_uuid": attributes["question_uuid"],
-        "order": attributes["order"],
+        "originator": attributes.pop("originator"),
+        "sender": attributes.pop("sender"),
+        "sender_type": attributes.pop("sender_type"),
+        "sender_sdk_version": attributes.pop("sender_sdk_version"),
+        "recipient": attributes.pop("recipient"),
+        "question_uuid": attributes.pop("question_uuid"),
+        "order": attributes.pop("order"),
         # Backend-specific metadata.
         "backend": BACKEND,
         "backend_metadata": backend_metadata,
