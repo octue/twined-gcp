@@ -1,11 +1,13 @@
 import base64
 import logging
 import os
+import sys
 
 import functions_framework
 from google.cloud.bigquery import Client
 
 
+logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
