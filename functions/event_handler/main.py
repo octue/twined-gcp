@@ -35,6 +35,7 @@ def store_pub_sub_event_in_bigquery(cloud_event):
     }
 
     row = {
+        "uuid": attributes.pop("uuid"),
         "event": event,
         "other_attributes": attributes,
         # Pull out some attributes into columns for querying.

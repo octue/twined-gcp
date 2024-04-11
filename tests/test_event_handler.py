@@ -26,6 +26,7 @@ class TestEventHandler(unittest.TestCase):
                         "recipient": "octue/another-service:1.0.0",
                         "question_uuid": "ca534cdd-24cb-4ed2-af57-e36757192acb",
                         "order": "0",
+                        "forward_logs": True,
                     },
                     "messageId": "1234",
                     "publishTime": "some-datetime",
@@ -41,9 +42,10 @@ class TestEventHandler(unittest.TestCase):
         self.assertEqual(
             mock_big_query_client.inserted_rows[0][0],
             {
+                "uuid": "c8bda9fa-f072-4330-92b1-96920d06b28d",
                 "event": {"some": "data"},
                 "other_attributes": {
-                    "uuid": "c8bda9fa-f072-4330-92b1-96920d06b28d",
+                    "forward_logs": True,
                 },
                 "originator": "octue/test-service:5.6.3",
                 "sender": "octue/test-service:5.6.3",
