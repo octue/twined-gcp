@@ -30,11 +30,12 @@ def store_pub_sub_event_in_bigquery(cloud_event):
 
     backend_metadata = {
         "message_id": cloud_event.data["message"]["messageId"],
-        "publish_time": cloud_event.data["message"]["publishTime"],
         "ordering_key": cloud_event.data["message"].get("orderingKey"),
     }
 
     row = {
+        "datetime": attributes.pop("datetime"),
+        "uuid": attributes.pop("uuid"),
         "event": event,
         "other_attributes": attributes,
         # Pull out some attributes into columns for querying.
