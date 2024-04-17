@@ -16,7 +16,7 @@ class TestEventHandler(unittest.TestCase):
         cloud_event = MockCloudEvent(
             data={
                 "message": {
-                    "data": base64.b64encode(b'{"some": "data"}'),
+                    "data": base64.b64encode(b'{"kind": "heart", "some": "data"}'),
                     "attributes": {
                         "datetime": "2024-04-11T09:26:39.144818",
                         "uuid": "c8bda9fa-f072-4330-92b1-96920d06b28d",
@@ -44,6 +44,7 @@ class TestEventHandler(unittest.TestCase):
             {
                 "datetime": "2024-04-11T09:26:39.144818",
                 "uuid": "c8bda9fa-f072-4330-92b1-96920d06b28d",
+                "kind": "heart",
                 "event": {"some": "data"},
                 "other_attributes": {
                     "forward_logs": True,
