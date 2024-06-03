@@ -38,14 +38,18 @@ def store_pub_sub_event_in_bigquery(cloud_event):
         "uuid": attributes.pop("uuid"),
         "kind": event.pop("kind"),
         "event": event,
+        # Any attributes not popped below will end up in the `other_attributes` column.
         "other_attributes": attributes,
         # Pull out some attributes into columns for querying.
+        "parent": attributes.pop("parent"),
         "originator": attributes.pop("originator"),
         "sender": attributes.pop("sender"),
         "sender_type": attributes.pop("sender_type"),
         "sender_sdk_version": attributes.pop("sender_sdk_version"),
         "recipient": attributes.pop("recipient"),
         "question_uuid": attributes.pop("question_uuid"),
+        "parent_question_uuid": attributes.pop("parent_question_uuid"),
+        "originator_question_uuid": attributes.pop("originator_question_uuid"),
         "order": attributes.pop("order"),
         # Backend-specific metadata.
         "backend": BACKEND,

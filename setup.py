@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name="twined-gcp",
-    version="0.5.0",
+    version="0.6.0",
     author="Marcus Lugg <marcus@octue.com>",
     install_requires=[
         "setuptools",
