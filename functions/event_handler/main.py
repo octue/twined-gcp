@@ -50,7 +50,6 @@ def store_pub_sub_event_in_bigquery(cloud_event):
         "question_uuid": attributes.pop("question_uuid"),
         "parent_question_uuid": attributes.pop("parent_question_uuid"),
         "originator_question_uuid": attributes.pop("originator_question_uuid"),
-        "order": attributes.pop("order"),
         # Backend-specific metadata.
         "backend": BACKEND,
         "backend_metadata": backend_metadata,
