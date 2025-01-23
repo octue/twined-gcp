@@ -8,12 +8,14 @@ import sys
 import functions_framework
 import kubernetes
 from google.cloud.bigquery import Client as BigQueryClient
+from kubernetes.client import V1EnvVar
 
 logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 BACKEND = "GoogleCloudPubSub"
+COMPUTE_PROVIDER = "GOOGLE_KUEUE"
 BIGQUERY_EVENTS_TABLE = os.environ["BIGQUERY_EVENTS_TABLE"]
 KUEUE_LOCAL_QUEUE_NAME = os.environ["KUEUE_LOCAL_QUEUE_NAME"]
 ARTIFACT_REPOSITORY = os.environ["ARTIFACT_REPOSITORY"]
@@ -106,6 +108,10 @@ def _dispatch_kueue_job(event, attributes):
                     command=["octue", "question", "ask", "local"],
                     args=args,
                     resources={"requests": {"cpu": 2, "memory": "2Gi"}},
+                    env=[
+                        V1EnvVar(name="OCTUE_SERVICE_REVISION_TAG", value=service_revision_tag),
+                        V1EnvVar(name="COMPUTE_PROVIDER", value=COMPUTE_PROVIDER),
+                    ],
                 )
             ],
             "restartPolicy": "Never",
