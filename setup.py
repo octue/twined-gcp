@@ -1,15 +1,19 @@
+# This setup.py file is for development. Production dependencies are specified in each cloud function's requirements
+# file.
 from setuptools import setup
-
 
 setup(
     name="twined-gcp",
-    version="0.6.1",
+    version="0.7.0",
     author="Marcus Lugg <marcus@octue.com>",
     install_requires=[
         "setuptools",
-        # Requirements duplicated from cloud functions.
+        "pre-commit==4.*",
+        # These requirements are duplicated from the cloud functions.
         "functions-framework==3.*",
         "google-cloud-bigquery>=3.18.0,<=4",
+        "kubernetes==31.*",
+        "requests==2.32.*",
     ],
     packages=["functions"],
 )
