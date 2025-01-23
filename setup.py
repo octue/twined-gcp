@@ -13,7 +13,6 @@ setup(
         "functions-framework==3.*",
         "google-cloud-bigquery>=3.18.0,<=4",
         "kubernetes==31.*",
-        "requests==2.32.*",
     ],
     packages=["functions"],
 )
