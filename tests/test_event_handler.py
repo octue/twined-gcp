@@ -3,7 +3,7 @@ import os
 import unittest
 from unittest.mock import patch
 
-from functions.event_handler.main import store_pub_sub_event_in_bigquery
+from functions.event_handler.main import handle_event
 from tests.mocks import MockBigQueryClient, MockCloudEvent
 
 REPOSITORY_ROOT = os.path.dirname(os.path.dirname(__file__))
@@ -56,7 +56,7 @@ class TestEventHandler(unittest.TestCase):
         mock_big_query_client = MockBigQueryClient()
 
         with patch("functions.event_handler.main.BigQueryClient", return_value=mock_big_query_client):
-            store_pub_sub_event_in_bigquery(cloud_event)
+            handle_event(cloud_event)
 
         self.assertEqual(
             mock_big_query_client.inserted_rows[0][0],

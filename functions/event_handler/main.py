@@ -19,9 +19,11 @@ COMPUTE_PROVIDER = "GOOGLE_KUEUE"
 
 
 @functions_framework.cloud_event
-def store_pub_sub_event_in_bigquery(cloud_event):
-    """Decode a Google Cloud Pub/Sub message into an Octue service event and its attributes, then store it in a BigQuery
-    table.
+def handle_event(cloud_event):
+    """On receipt of a cloud event:
+    1. Decode the Pub/Sub message into an Octue Twined service event and its attributes
+    2. Store it in a BigQuery table
+    3. If it's a question, dispatch a job to Kueue
 
     :param cloudevents.http.CloudEvent cloud_event: a Google Cloud Pub/Sub message as a CloudEvent
     :return None:
