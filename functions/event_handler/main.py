@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 BACKEND = "GoogleCloudPubSub"
 COMPUTE_PROVIDER = "GOOGLE_KUEUE"
-USE_KUEUE = os.environ.get("USE_KUEUE", True)
+USE_KUEUE = os.environ.get("USE_KUEUE", "1") == "1"
 
 
 @functions_framework.cloud_event
@@ -23,7 +23,7 @@ def handle_event(cloud_event):
     """On receipt of a cloud event:
     1. Decode the Pub/Sub message into an Octue Twined service event and its attributes
     2. Store it in a BigQuery table
-    3. If it's a question, dispatch a job to Kueue
+    3. If it's a question and Kueue is enabled, dispatch it as a job to Kueue
 
     :param cloudevents.http.CloudEvent cloud_event: a Google Cloud Pub/Sub message as a CloudEvent
     :return None:
