@@ -15,6 +15,9 @@ logger = logging.getLogger(__name__)
 
 BACKEND = "GoogleCloudPubSub"
 COMPUTE_PROVIDER = "GOOGLE_KUEUE"
+DEFAULT_CPUS = 2
+DEFAULT_MEMORY = "2Gi"
+
 USE_KUEUE = os.environ.get("USE_KUEUE", "1") == "1"
 
 
@@ -108,6 +111,13 @@ def _dispatch_question_as_kueue_job(event, attributes):
     if event.get("input_manifest"):
         args.extend(["--input-manifest", json.dumps(event["input_manifest"])])
 
+    resources = {
+        "requests": {
+            "cpu": attributes.get("resources_cpu", DEFAULT_CPUS),
+            "memory": attributes.get("resource_memory", DEFAULT_MEMORY),
+        }
+    }
+
     job_template = {
         "spec": {
             "containers": [
@@ -116,7 +126,7 @@ def _dispatch_question_as_kueue_job(event, attributes):
                     name=job_name,
                     command=["octue", "question", "ask", "local"],
                     args=args,
-                    resources={"requests": {"cpu": 2, "memory": "2Gi"}},
+                    resources=resources,
                     env=[
                         kubernetes.client.V1EnvVar(name="OCTUE_SERVICES_TOPIC", value=octue_services_topic),
                         kubernetes.client.V1EnvVar(name="COMPUTE_PROVIDER", value=COMPUTE_PROVIDER),
