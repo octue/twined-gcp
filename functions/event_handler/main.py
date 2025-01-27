@@ -17,11 +17,6 @@ logger = logging.getLogger(__name__)
 BACKEND = "GoogleCloudPubSub"
 COMPUTE_PROVIDER = "GOOGLE_KUEUE"
 
-OCTUE_SERVICES_TOPIC = os.environ["OCTUE_SERVICES_TOPIC"]
-BIGQUERY_EVENTS_TABLE = os.environ["BIGQUERY_EVENTS_TABLE"]
-KUEUE_LOCAL_QUEUE = os.environ["KUEUE_LOCAL_QUEUE"]
-ARTIFACT_REGISTRY_REPOSITORY_URL = os.environ["ARTIFACT_REGISTRY_REPOSITORY_URL"]
-
 
 @functions_framework.cloud_event
 def store_pub_sub_event_in_bigquery(cloud_event):
@@ -32,6 +27,8 @@ def store_pub_sub_event_in_bigquery(cloud_event):
     :return None:
     """
     logger.info("Received event.")
+
+    bigquery_events_table = os.environ["BIGQUERY_EVENTS_TABLE"]
     event = json.loads(base64.b64decode(cloud_event.data["message"]["data"]).decode())
     attributes = cloud_event.data["message"]["attributes"]
 
@@ -68,18 +65,22 @@ def store_pub_sub_event_in_bigquery(cloud_event):
     logger.info("Attempting to store row: %r.", row)
 
     bigquery_client = BigQueryClient()
-    errors = bigquery_client.insert_rows(table=bigquery_client.get_table(BIGQUERY_EVENTS_TABLE), rows=[row])
+    errors = bigquery_client.insert_rows(table=bigquery_client.get_table(bigquery_events_table), rows=[row])
 
     if errors:
         raise ValueError(errors)
 
-    logger.info("Successfully stored row in %r.", BIGQUERY_EVENTS_TABLE)
+    logger.info("Successfully stored row in %r.", bigquery_events_table)
 
     if original_event["kind"] == "question":
         _dispatch_kueue_job(original_event, original_attributes)
 
 
 def _dispatch_kueue_job(event, attributes):
+    octue_services_topic = os.environ["OCTUE_SERVICES_TOPIC"]
+    kueue_local_queue = os.environ["kueue_local_queue"]
+    artifact_registry_repository_url = os.environ["artifact_registry_repository_url"]
+
     kubernetes.config.load_kube_config()
 
     service_namespace, service_name_and_revision_tag = attributes["recipient"].split("/")
@@ -88,7 +89,7 @@ def _dispatch_kueue_job(event, attributes):
 
     job_metadata = kubernetes.client.V1ObjectMeta(
         name=job_name,
-        labels={"kueue.x-k8s.io/queue-name": KUEUE_LOCAL_QUEUE},
+        labels={"kueue.x-k8s.io/queue-name": kueue_local_queue},
     )
 
     args = []
@@ -103,13 +104,13 @@ def _dispatch_kueue_job(event, attributes):
         "spec": {
             "containers": [
                 kubernetes.client.V1Container(
-                    image=ARTIFACT_REGISTRY_REPOSITORY_URL + "/" + attributes["recipient"],
+                    image=artifact_registry_repository_url + "/" + attributes["recipient"],
                     name=job_name,
                     command=["octue", "question", "ask", "local"],
                     args=args,
                     resources={"requests": {"cpu": 2, "memory": "2Gi"}},
                     env=[
-                        V1EnvVar(name="OCTUE_SERVICES_TOPIC", value=OCTUE_SERVICES_TOPIC),
+                        V1EnvVar(name="OCTUE_SERVICES_TOPIC", value=octue_services_topic),
                         V1EnvVar(name="COMPUTE_PROVIDER", value=COMPUTE_PROVIDER),
                         V1EnvVar(name="OCTUE_SERVICE_REVISION_TAG", value=service_revision_tag),
                     ],
