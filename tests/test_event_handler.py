@@ -104,7 +104,8 @@ class TestEventHandler(unittest.TestCase):
 
         with patch("functions.event_handler.main.BigQueryClient", return_value=mock_big_query_client):
             with patch("kubernetes.client.BatchV1Api.create_namespaced_job") as mock_create_namespaced_job:
-                handle_event(cloud_event)
+                with patch("kubernetes.config.load_kube_config"):
+                    handle_event(cloud_event)
 
         job = mock_create_namespaced_job.call_args.args[1]
         self.assertEqual(job.metadata.name, f"octue-another-service-1.0.0-question-{QUESTION_UUID}")
