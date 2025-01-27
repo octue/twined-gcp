@@ -75,10 +75,16 @@ def handle_event(cloud_event):
     logger.info("Successfully stored event in %r.", bigquery_events_table)
 
     if USE_KUEUE and original_event["kind"] == "question":
-        _dispatch_kueue_job(original_event, original_attributes)
+        _dispatch_question_as_kueue_job(original_event, original_attributes)
 
 
-def _dispatch_kueue_job(event, attributes):
+def _dispatch_question_as_kueue_job(event, attributes):
+    """Dispatch a question events to Kueue as a job.
+
+    :param dict event: an Octue Twined service question event
+    :param dict attributes: the attributes accompanying the question event
+    :return None:
+    """
     octue_services_topic = os.environ["OCTUE_SERVICES_TOPIC"]
     kueue_local_queue = os.environ["KUEUE_LOCAL_QUEUE"]
     artifact_registry_repository_url = os.environ["ARTIFACT_REGISTRY_REPOSITORY_URL"]
