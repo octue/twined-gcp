@@ -1,0 +1,10 @@
+[tool.ruff]
+line-length = 120
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes.
+lint.select = ["E", "F"]
+# Ignore E501 line-too-long - see https://docs.astral.sh/ruff/faq/#is-the-ruff-linter-compatible-with-black for why
+lint.ignore = ["F405", "E501", "E203", "E731", "N818"]
+
+[tool.ruff.lint.isort]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+force-sort-within-sections = true
