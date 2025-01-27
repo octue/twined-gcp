@@ -6,8 +6,8 @@ import os
 import sys
 
 import functions_framework
-import kubernetes
 from google.cloud.bigquery import Client as BigQueryClient
+import kubernetes
 from kubernetes.client import V1EnvVar
 
 logging.basicConfig(stream=sys.stderr, level=logging.INFO)
@@ -16,9 +16,11 @@ logger = logging.getLogger(__name__)
 
 BACKEND = "GoogleCloudPubSub"
 COMPUTE_PROVIDER = "GOOGLE_KUEUE"
+
+OCTUE_SERVICES_TOPIC = os.environ["OCTUE_SERVICES_TOPIC"]
 BIGQUERY_EVENTS_TABLE = os.environ["BIGQUERY_EVENTS_TABLE"]
-KUEUE_LOCAL_QUEUE_NAME = os.environ["KUEUE_LOCAL_QUEUE_NAME"]
-ARTIFACT_REPOSITORY = os.environ["ARTIFACT_REPOSITORY"]
+KUEUE_LOCAL_QUEUE = os.environ["KUEUE_LOCAL_QUEUE"]
+ARTIFACT_REGISTRY_REPOSITORY_URL = os.environ["ARTIFACT_REGISTRY_REPOSITORY_URL"]
 
 
 @functions_framework.cloud_event
@@ -88,7 +90,7 @@ def _dispatch_kueue_job(event, attributes):
 
     job_metadata = kubernetes.client.V1ObjectMeta(
         name=job_name,
-        labels={"kueue.x-k8s.io/queue-name": KUEUE_LOCAL_QUEUE_NAME},
+        labels={"kueue.x-k8s.io/queue-name": KUEUE_LOCAL_QUEUE},
     )
 
     args = []
@@ -103,14 +105,15 @@ def _dispatch_kueue_job(event, attributes):
         "spec": {
             "containers": [
                 kubernetes.client.V1Container(
-                    image=ARTIFACT_REPOSITORY + "/" + attributes["recipient"],
+                    image=ARTIFACT_REGISTRY_REPOSITORY_URL + "/" + attributes["recipient"],
                     name=job_name,
                     command=["octue", "question", "ask", "local"],
                     args=args,
                     resources={"requests": {"cpu": 2, "memory": "2Gi"}},
                     env=[
-                        V1EnvVar(name="OCTUE_SERVICE_REVISION_TAG", value=service_revision_tag),
+                        V1EnvVar(name="OCTUE_SERVICES_TOPIC", value=OCTUE_SERVICES_TOPIC),
                         V1EnvVar(name="COMPUTE_PROVIDER", value=COMPUTE_PROVIDER),
+                        V1EnvVar(name="OCTUE_SERVICE_REVISION_TAG", value=service_revision_tag),
                     ],
                 )
             ],
