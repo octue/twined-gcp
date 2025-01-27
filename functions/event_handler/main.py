@@ -80,8 +80,8 @@ def handle_event(cloud_event):
 
 def _dispatch_kueue_job(event, attributes):
     octue_services_topic = os.environ["OCTUE_SERVICES_TOPIC"]
-    kueue_local_queue = os.environ["kueue_local_queue"]
-    artifact_registry_repository_url = os.environ["artifact_registry_repository_url"]
+    kueue_local_queue = os.environ["KUEUE_LOCAL_QUEUE"]
+    artifact_registry_repository_url = os.environ["ARTIFACT_REGISTRY_REPOSITORY_URL"]
 
     kubernetes.config.load_kube_config()
 
