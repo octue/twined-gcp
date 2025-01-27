@@ -94,7 +94,7 @@ def _dispatch_kueue_job(event, attributes):
         labels={"kueue.x-k8s.io/queue-name": kueue_local_queue},
     )
 
-    args = []
+    args = ["--attributes", json.dumps(attributes)]
 
     if event.get("input_values"):
         args.extend(["--input-values", json.dumps(event["input_values"])])

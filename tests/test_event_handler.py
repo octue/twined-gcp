@@ -1,4 +1,6 @@
 import base64
+import copy
+import json
 import os
 import unittest
 from unittest.mock import patch
@@ -9,6 +11,21 @@ from tests.mocks import MockBigQueryClient, MockCloudEvent
 REPOSITORY_ROOT = os.path.dirname(os.path.dirname(__file__))
 QUESTION_UUID = "ca534cdd-24cb-4ed2-af57-e36757192acb"
 SRUID = "octue/another-service:1.0.0"
+
+EVENT_ATTRIBUTES = {
+    "datetime": "2024-04-11T09:26:39.144818",
+    "uuid": "c8bda9fa-f072-4330-92b1-96920d06b28d",
+    "parent": "octue/parent-test-service:5.6.3",
+    "originator": "octue/ancestor-test-service:5.6.3",
+    "sender": "octue/test-service:5.6.3",
+    "sender_type": "PARENT",
+    "sender_sdk_version": "1.0.3",
+    "recipient": SRUID,
+    "question_uuid": QUESTION_UUID,
+    "parent_question_uuid": "1d897229-155d-498d-b6ae-21960fab3754",
+    "originator_question_uuid": "fb6cf9a3-84fb-45ce-a4da-0d2257bec319",
+    "forward_logs": True,
+}
 
 
 class TestEventHandler(unittest.TestCase):
@@ -36,20 +53,7 @@ class TestEventHandler(unittest.TestCase):
             data={
                 "message": {
                     "data": base64.b64encode(b'{"kind": "heart", "some": "data"}'),
-                    "attributes": {
-                        "datetime": "2024-04-11T09:26:39.144818",
-                        "uuid": "c8bda9fa-f072-4330-92b1-96920d06b28d",
-                        "parent": "octue/parent-test-service:5.6.3",
-                        "originator": "octue/ancestor-test-service:5.6.3",
-                        "sender": "octue/test-service:5.6.3",
-                        "sender_type": "PARENT",
-                        "sender_sdk_version": "1.0.3",
-                        "recipient": SRUID,
-                        "question_uuid": QUESTION_UUID,
-                        "parent_question_uuid": "1d897229-155d-498d-b6ae-21960fab3754",
-                        "originator_question_uuid": "fb6cf9a3-84fb-45ce-a4da-0d2257bec319",
-                        "forward_logs": True,
-                    },
+                    "attributes": copy.copy(EVENT_ATTRIBUTES),
                     "messageId": "1234",
                 }
             }
@@ -90,20 +94,7 @@ class TestEventHandler(unittest.TestCase):
             data={
                 "message": {
                     "data": base64.b64encode(b'{"kind": "question", "input_values": {"some": "data"}}'),
-                    "attributes": {
-                        "datetime": "2024-04-11T09:26:39.144818",
-                        "uuid": "c8bda9fa-f072-4330-92b1-96920d06b28d",
-                        "parent": "octue/parent-test-service:5.6.3",
-                        "originator": "octue/ancestor-test-service:5.6.3",
-                        "sender": "octue/test-service:5.6.3",
-                        "sender_type": "PARENT",
-                        "sender_sdk_version": "1.0.3",
-                        "recipient": SRUID,
-                        "question_uuid": QUESTION_UUID,
-                        "parent_question_uuid": "1d897229-155d-498d-b6ae-21960fab3754",
-                        "originator_question_uuid": "fb6cf9a3-84fb-45ce-a4da-0d2257bec319",
-                        "forward_logs": True,
-                    },
+                    "attributes": copy.copy(EVENT_ATTRIBUTES),
                     "messageId": "1234",
                 }
             }
@@ -121,10 +112,14 @@ class TestEventHandler(unittest.TestCase):
 
         container = job.spec.template["spec"]["containers"][0]
         self.assertEqual(container.name, f"octue-another-service-1.0.0-question-{QUESTION_UUID}")
-        self.assertEqual(container.args, ["--input-values", '{"some": "data"}'])
-        self.assertEqual(container.command, ["octue", "question", "ask", "local"])
         self.assertEqual(container.image, f"some-artifact-registry-url/{SRUID}")
+        self.assertEqual(container.command, ["octue", "question", "ask", "local"])
         self.assertEqual(container.resources, {"requests": {"cpu": 2, "memory": "2Gi"}})
+
+        self.assertEqual(
+            container.args,
+            ["--attributes", json.dumps(EVENT_ATTRIBUTES), "--input-values", '{"some": "data"}'],
+        )
 
         environment_variables = [variable.to_dict() for variable in container.env]
 
