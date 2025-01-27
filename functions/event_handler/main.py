@@ -8,7 +8,6 @@ import sys
 import functions_framework
 from google.cloud.bigquery import Client as BigQueryClient
 import kubernetes
-from kubernetes.client import V1EnvVar
 
 logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -113,9 +112,9 @@ def _dispatch_kueue_job(event, attributes):
                     args=args,
                     resources={"requests": {"cpu": 2, "memory": "2Gi"}},
                     env=[
-                        V1EnvVar(name="OCTUE_SERVICES_TOPIC", value=octue_services_topic),
-                        V1EnvVar(name="COMPUTE_PROVIDER", value=COMPUTE_PROVIDER),
-                        V1EnvVar(name="OCTUE_SERVICE_REVISION_TAG", value=service_revision_tag),
+                        kubernetes.client.V1EnvVar(name="OCTUE_SERVICES_TOPIC", value=octue_services_topic),
+                        kubernetes.client.V1EnvVar(name="COMPUTE_PROVIDER", value=COMPUTE_PROVIDER),
+                        kubernetes.client.V1EnvVar(name="OCTUE_SERVICE_REVISION_TAG", value=service_revision_tag),
                     ],
                 )
             ],
