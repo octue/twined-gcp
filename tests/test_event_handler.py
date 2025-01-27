@@ -6,11 +6,28 @@ from unittest.mock import patch
 from functions.event_handler.main import store_pub_sub_event_in_bigquery
 from tests.mocks import MockBigQueryClient, MockCloudEvent
 
-
 REPOSITORY_ROOT = os.path.dirname(os.path.dirname(__file__))
 
 
 class TestEventHandler(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.environment_variables_patch = patch.dict(
+            "os.environ",
+            {
+                "BIGQUERY_EVENTS_TABLE": "my-table",
+                "OCTUE_SERVICES_TOPIC": "test.octue.services",
+                "KUEUE_LOCAL_QUEUE": "test-queue",
+                "ARTIFACT_REGISTRY_REPOSITORY_URL": "some-artifact-registry-url",
+            },
+        )
+
+        cls.environment_variables_patch.start()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.environment_variables_patch.stop()
+
     def test_store_pub_sub_event_in_bigquery(self):
         """Test that the `event_handler` cloud function can receive, parse, and store an event in BigQuery."""
         cloud_event = MockCloudEvent(
@@ -38,7 +55,7 @@ class TestEventHandler(unittest.TestCase):
 
         mock_big_query_client = MockBigQueryClient()
 
-        with patch("functions.event_handler.main.Client", return_value=mock_big_query_client):
+        with patch("functions.event_handler.main.BigQueryClient", return_value=mock_big_query_client):
             store_pub_sub_event_in_bigquery(cloud_event)
 
         self.assertEqual(
