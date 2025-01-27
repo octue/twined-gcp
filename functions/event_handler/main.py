@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 BACKEND = "GoogleCloudPubSub"
 COMPUTE_PROVIDER = "GOOGLE_KUEUE"
+USE_KUEUE = os.environ.get("USE_KUEUE", True)
 
 
 @functions_framework.cloud_event
@@ -74,7 +75,7 @@ def handle_event(cloud_event):
 
     logger.info("Successfully stored row in %r.", bigquery_events_table)
 
-    if original_event["kind"] == "question":
+    if USE_KUEUE and original_event["kind"] == "question":
         _dispatch_kueue_job(original_event, original_attributes)
 
 
