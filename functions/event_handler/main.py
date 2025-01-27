@@ -68,9 +68,7 @@ def store_pub_sub_event_in_bigquery(cloud_event):
     logger.info("Attempting to store row: %r.", row)
 
     bigquery_client = BigQueryClient()
-    errors = bigquery_client.insert_rows(
-        table=bigquery_client.get_table(BIGQUERY_EVENTS_TABLE), rows=[row]
-    )
+    errors = bigquery_client.insert_rows(table=bigquery_client.get_table(BIGQUERY_EVENTS_TABLE), rows=[row])
 
     if errors:
         raise ValueError(errors)
@@ -84,8 +82,8 @@ def store_pub_sub_event_in_bigquery(cloud_event):
 def _dispatch_kueue_job(event, attributes):
     kubernetes.config.load_kube_config()
 
-    service_namespace, service_name = attributes["recipient"].split("/")
-    service_name, service_revision_tag = service_name.split(":")
+    service_namespace, service_name_and_revision_tag = attributes["recipient"].split("/")
+    service_name, service_revision_tag = service_name_and_revision_tag.split(":")
     job_name = f"{service_namespace}-{service_name}-{service_revision_tag}-question-{attributes['question_uuid']}"
 
     job_metadata = kubernetes.client.V1ObjectMeta(
@@ -125,15 +123,9 @@ def _dispatch_kueue_job(event, attributes):
         api_version="batch/v1",
         kind="Job",
         metadata=job_metadata,
-        spec=kubernetes.client.V1JobSpec(
-            parallelism=1, completions=1, suspend=True, template=job_template
-        ),
+        spec=kubernetes.client.V1JobSpec(parallelism=1, completions=1, suspend=True, template=job_template),
     )
 
     batch_api = kubernetes.client.BatchV1Api()
     batch_api.create_namespaced_job("default", job)
-    logger.info(
-        "Dispatched to Kueue: question %r for %r.",
-        attributes["question_uuid"],
-        attributes["recipient"],
-    )
+    logger.info("Dispatched to Kueue: question %r for %r.", attributes["question_uuid"], attributes["recipient"])
