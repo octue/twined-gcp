@@ -131,4 +131,4 @@ def _dispatch_kueue_job(event, attributes):
 
     batch_api = kubernetes.client.BatchV1Api()
     batch_api.create_namespaced_job("default", job)
-    logger.info("Dispatched to Kueue: question %r for %r.", attributes["question_uuid"], attributes["recipient"])
+    logger.info("Dispatched to Kueue (%r): question %r.", attributes["recipient"], attributes["question_uuid"])
