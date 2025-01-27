@@ -64,7 +64,7 @@ def handle_event(cloud_event):
         "backend_metadata": backend_metadata,
     }
 
-    logger.info("Attempting to store row: %r.", row)
+    logger.info("Attempting to store event: %r.", row)
 
     bigquery_client = BigQueryClient()
     errors = bigquery_client.insert_rows(table=bigquery_client.get_table(bigquery_events_table), rows=[row])
@@ -72,7 +72,7 @@ def handle_event(cloud_event):
     if errors:
         raise ValueError(errors)
 
-    logger.info("Successfully stored row in %r.", bigquery_events_table)
+    logger.info("Successfully stored event in %r.", bigquery_events_table)
 
     if USE_KUEUE and original_event["kind"] == "question":
         _dispatch_kueue_job(original_event, original_attributes)
