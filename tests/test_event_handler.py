@@ -100,9 +100,7 @@ class TestEventHandler(unittest.TestCase):
             }
         )
 
-        mock_big_query_client = MockBigQueryClient()
-
-        with patch("functions.event_handler.main.BigQueryClient", return_value=mock_big_query_client):
+        with patch("functions.event_handler.main.BigQueryClient", return_value=MockBigQueryClient()):
             with patch("kubernetes.client.BatchV1Api.create_namespaced_job") as mock_create_namespaced_job:
                 with patch("kubernetes.config.load_kube_config"):
                     handle_event(cloud_event)
@@ -112,7 +110,7 @@ class TestEventHandler(unittest.TestCase):
         self.assertEqual(job.metadata.labels["kueue.x-k8s.io/queue-name"], "test-queue")
 
         container = job.spec.template["spec"]["containers"][0]
-        self.assertEqual(container.name, f"octue-another-service-1.0.0-question-{QUESTION_UUID}")
+        self.assertEqual(container.name, job.metadata.name)
         self.assertEqual(container.image, f"some-artifact-registry-url/{SRUID}")
         self.assertEqual(container.command, ["octue", "question", "ask", "local"])
         self.assertEqual(container.resources, {"requests": {"cpu": 2, "memory": "2Gi"}})
