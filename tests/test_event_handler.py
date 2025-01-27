@@ -7,6 +7,8 @@ from functions.event_handler.main import handle_event
 from tests.mocks import MockBigQueryClient, MockCloudEvent
 
 REPOSITORY_ROOT = os.path.dirname(os.path.dirname(__file__))
+QUESTION_UUID = "ca534cdd-24cb-4ed2-af57-e36757192acb"
+SRUID = "octue/another-service:1.0.0"
 
 
 class TestEventHandler(unittest.TestCase):
@@ -42,8 +44,8 @@ class TestEventHandler(unittest.TestCase):
                         "sender": "octue/test-service:5.6.3",
                         "sender_type": "PARENT",
                         "sender_sdk_version": "1.0.3",
-                        "recipient": "octue/another-service:1.0.0",
-                        "question_uuid": "ca534cdd-24cb-4ed2-af57-e36757192acb",
+                        "recipient": SRUID,
+                        "question_uuid": QUESTION_UUID,
                         "parent_question_uuid": "1d897229-155d-498d-b6ae-21960fab3754",
                         "originator_question_uuid": "fb6cf9a3-84fb-45ce-a4da-0d2257bec319",
                         "forward_logs": True,
@@ -73,8 +75,8 @@ class TestEventHandler(unittest.TestCase):
                 "sender": "octue/test-service:5.6.3",
                 "sender_type": "PARENT",
                 "sender_sdk_version": "1.0.3",
-                "recipient": "octue/another-service:1.0.0",
-                "question_uuid": "ca534cdd-24cb-4ed2-af57-e36757192acb",
+                "recipient": SRUID,
+                "question_uuid": QUESTION_UUID,
                 "parent_question_uuid": "1d897229-155d-498d-b6ae-21960fab3754",
                 "originator_question_uuid": "fb6cf9a3-84fb-45ce-a4da-0d2257bec319",
                 "backend": "GoogleCloudPubSub",
@@ -96,8 +98,8 @@ class TestEventHandler(unittest.TestCase):
                         "sender": "octue/test-service:5.6.3",
                         "sender_type": "PARENT",
                         "sender_sdk_version": "1.0.3",
-                        "recipient": "octue/another-service:1.0.0",
-                        "question_uuid": "ca534cdd-24cb-4ed2-af57-e36757192acb",
+                        "recipient": SRUID,
+                        "question_uuid": QUESTION_UUID,
                         "parent_question_uuid": "1d897229-155d-498d-b6ae-21960fab3754",
                         "originator_question_uuid": "fb6cf9a3-84fb-45ce-a4da-0d2257bec319",
                         "forward_logs": True,
@@ -114,14 +116,14 @@ class TestEventHandler(unittest.TestCase):
                 handle_event(cloud_event)
 
         job = mock_create_namespaced_job.call_args.args[1]
-        self.assertEqual(job.metadata.name, "octue-another-service-1.0.0-question-ca534cdd-24cb-4ed2-af57-e36757192acb")
+        self.assertEqual(job.metadata.name, f"octue-another-service-1.0.0-question-{QUESTION_UUID}")
         self.assertEqual(job.metadata.labels["kueue.x-k8s.io/queue-name"], "test-queue")
 
         container = job.spec.template["spec"]["containers"][0]
-        self.assertEqual(container.name, "octue-another-service-1.0.0-question-ca534cdd-24cb-4ed2-af57-e36757192acb")
+        self.assertEqual(container.name, f"octue-another-service-1.0.0-question-{QUESTION_UUID}")
         self.assertEqual(container.args, ["--input-values", '{"some": "data"}'])
         self.assertEqual(container.command, ["octue", "question", "ask", "local"])
-        self.assertEqual(container.image, "some-artifact-registry-url/octue/another-service:1.0.0")
+        self.assertEqual(container.image, f"some-artifact-registry-url/{SRUID}")
         self.assertEqual(container.resources, {"requests": {"cpu": 2, "memory": "2Gi"}})
 
         environment_variables = [variable.to_dict() for variable in container.env]
