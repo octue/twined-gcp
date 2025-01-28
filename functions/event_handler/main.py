@@ -4,9 +4,13 @@ import json
 import logging
 import os
 import sys
+import tempfile
 
 import functions_framework
+import google.auth
+import google.auth.transport.requests
 from google.cloud.bigquery import Client as BigQueryClient
+from google.cloud.container_v1 import ClusterManagerClient
 import kubernetes
 
 logging.basicConfig(stream=sys.stderr, level=logging.INFO)
@@ -143,12 +147,26 @@ def _dispatch_question_as_kueue_job(event, attributes):
         spec=kubernetes.client.V1JobSpec(parallelism=1, completions=1, suspend=True, template=job_template),
     )
 
-    configuration = kubernetes.client.Configuration()
-    # configuration.api_key['authorization'] = 'YOUR_API_KEY'
-    configuration.host = f"http://{os.environ['KUBERNETES_CLUSTER_HOST']}"
-
-    with kubernetes.client.ApiClient(configuration) as api_client:
-        batch_api = kubernetes.client.BatchV1Api(api_client)
-        batch_api.create_namespaced_job("default", job)
-
+    _configure_kubernetes_client()
+    batch_api = kubernetes.client.BatchV1Api()
+    batch_api.create_namespaced_job("default", job)
     logger.info("Dispatched to Kueue (%r): question %r.", attributes["recipient"], attributes["question_uuid"])
+
+
+def _configure_kubernetes_client():
+    credentials, project_id = google.auth.default()
+    auth_request = google.auth.transport.requests.Request()
+    credentials.refresh(auth_request)
+
+    cluster_manager_client = ClusterManagerClient(credentials=credentials)
+    cluster = cluster_manager_client.get_cluster(name=os.environ["KUBERNETES_CLUSTER_ID"])
+
+    configuration = kubernetes.client.Configuration()
+    configuration.host = f"https://{cluster.endpoint}:443"
+
+    with tempfile.NamedTemporaryFile(delete=False) as ca_cert:
+        ca_cert.write(base64.b64decode(cluster.master_auth.cluster_ca_certificate))
+        configuration.ssl_ca_cert = ca_cert.name
+
+    configuration.api_key = {"authorization": "Bearer " + credentials.token}
+    kubernetes.client.Configuration.set_default(configuration)
