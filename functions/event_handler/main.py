@@ -92,8 +92,6 @@ def _dispatch_question_as_kueue_job(event, attributes):
     kueue_local_queue = os.environ["KUEUE_LOCAL_QUEUE"]
     artifact_registry_repository_url = os.environ["ARTIFACT_REGISTRY_REPOSITORY_URL"]
 
-    kubernetes.config.load_kube_config()
-
     service_namespace, service_name_and_revision_tag = attributes["recipient"].split("/")
     service_name, service_revision_tag = service_name_and_revision_tag.split(":")
     job_name = f"{service_namespace}-{service_name}-{service_revision_tag}-question-{attributes['question_uuid']}"
