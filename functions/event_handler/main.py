@@ -96,11 +96,7 @@ def _dispatch_question_as_kueue_job(event, attributes):
     kueue_local_queue = os.environ["KUEUE_LOCAL_QUEUE"]
     artifact_registry_repository_url = os.environ["ARTIFACT_REGISTRY_REPOSITORY_URL"]
 
-    service_namespace, service_name_and_revision_tag = attributes["recipient"].split("/")
-    service_name, service_revision_tag = service_name_and_revision_tag.split(":")
-
-    formatted_sruid = "-".join([service_namespace, service_name, service_revision_tag]).replace(".", "-")
-    job_name = f"{formatted_sruid}-question-{attributes['question_uuid']}"
+    job_name = f"question-{attributes['question_uuid']}"
 
     job_metadata = kubernetes.client.V1ObjectMeta(
         name=job_name,
@@ -121,6 +117,9 @@ def _dispatch_question_as_kueue_job(event, attributes):
             "memory": attributes.get("resource_memory", DEFAULT_MEMORY),
         }
     }
+
+    service_namespace, service_name_and_revision_tag = attributes["recipient"].split("/")
+    _, service_revision_tag = service_name_and_revision_tag.split(":")
 
     job_template = {
         "spec": {
