@@ -92,7 +92,7 @@ def _dispatch_question_as_kueue_job(event, attributes):
     :param dict attributes: the attributes accompanying the question event
     :return None:
     """
-    octue_services_topic = os.environ["OCTUE_SERVICES_TOPIC"]
+    octue_services_topic_name = os.environ["OCTUE_SERVICES_TOPIC_NAME"]
     kueue_local_queue = os.environ["KUEUE_LOCAL_QUEUE"]
     artifact_registry_repository_url = os.environ["ARTIFACT_REGISTRY_REPOSITORY_URL"]
 
@@ -131,7 +131,7 @@ def _dispatch_question_as_kueue_job(event, attributes):
                     args=args,
                     resources=resources,
                     env=[
-                        kubernetes.client.V1EnvVar(name="OCTUE_SERVICES_TOPIC", value=octue_services_topic),
+                        kubernetes.client.V1EnvVar(name="OCTUE_SERVICES_TOPIC_NAME", value=octue_services_topic_name),
                         kubernetes.client.V1EnvVar(name="COMPUTE_PROVIDER", value=COMPUTE_PROVIDER),
                         kubernetes.client.V1EnvVar(name="OCTUE_SERVICE_REVISION_TAG", value=service_revision_tag),
                     ],
