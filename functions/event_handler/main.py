@@ -143,6 +143,12 @@ def _dispatch_question_as_kueue_job(event, attributes):
         spec=kubernetes.client.V1JobSpec(parallelism=1, completions=1, suspend=True, template=job_template),
     )
 
-    batch_api = kubernetes.client.BatchV1Api()
-    batch_api.create_namespaced_job("default", job)
+    configuration = kubernetes.client.Configuration()
+    # configuration.api_key['authorization'] = 'YOUR_API_KEY'
+    configuration.host = f"http://{os.environ['KUBERNETES_CLUSTER_HOST']}"
+
+    with kubernetes.client.ApiClient(configuration) as api_client:
+        batch_api = kubernetes.client.BatchV1Api(api_client)
+        batch_api.create_namespaced_job("default", job)
+
     logger.info("Dispatched to Kueue (%r): question %r.", attributes["recipient"], attributes["question_uuid"])
