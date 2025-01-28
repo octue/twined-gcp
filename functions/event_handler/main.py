@@ -98,7 +98,9 @@ def _dispatch_question_as_kueue_job(event, attributes):
 
     service_namespace, service_name_and_revision_tag = attributes["recipient"].split("/")
     service_name, service_revision_tag = service_name_and_revision_tag.split(":")
-    job_name = f"{service_namespace}-{service_name}-{service_revision_tag}-question-{attributes['question_uuid']}"
+
+    formatted_sruid = "-".join([service_namespace, service_name, service_revision_tag]).replace(".", "-")
+    job_name = f"{formatted_sruid}-question-{attributes['question_uuid']}"
 
     job_metadata = kubernetes.client.V1ObjectMeta(
         name=job_name,
