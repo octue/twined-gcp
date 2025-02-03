@@ -93,6 +93,7 @@ def _dispatch_question_as_kueue_job(event, attributes):
     :return None:
     """
     octue_services_topic_name = os.environ["OCTUE_SERVICES_TOPIC_NAME"]
+    kubernetes_service_account_name = os.environ["KUBERNETES_SERVICE_ACCOUNT_NAME"]
     kueue_local_queue = os.environ["KUEUE_LOCAL_QUEUE"]
     artifact_registry_repository_url = os.environ["ARTIFACT_REGISTRY_REPOSITORY_URL"]
 
@@ -138,6 +139,7 @@ def _dispatch_question_as_kueue_job(event, attributes):
                 )
             ],
             "restartPolicy": "Never",
+            "serviceAccountName": kubernetes_service_account_name,
         }
     }
 
