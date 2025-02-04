@@ -13,11 +13,11 @@ def handle_request(request):
     It does not support:
     - Getting the default SRUID for a service
 
-    :param requests.Request request: the request
+    :param flask.Request request: the request
     :return tuple(str, int): a message and HTTP response code
     """
-    suid = urllib.parse.urlparse(request.url).path.strip("/")
-    revision_tag = request.params.get("revision_tag")
+    suid = urllib.parse.urlparse(request.path).path.strip("/")
+    revision_tag = request.args.get("revision_tag")
 
     if not revision_tag:
         return (

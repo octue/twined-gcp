@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import patch
 import urllib.parse
 
-import requests
+import flask
 
 from functions.service_registry.main import handle_request
 
@@ -17,7 +17,8 @@ REVISION_TAG = "0.1.0"
 class TestServiceRegistry(unittest.TestCase):
     def test_400_returned_if_revision_tag_not_supplied(self):
         """Test that a 400 is returned if a revision tag isn't supplied."""
-        request = requests.Request(url=f"https://my-service-registry.com/{SUID}")
+        request = flask.Request(environ={})
+        request.path = f"https://my-service-registry.com/{SUID}"
 
         with patch.dict(os.environ, {"ARTIFACT_REGISTRY_REPOSITORY_ID": ARTIFACT_REPOSITORY_ID}):
             response = handle_request(request)
@@ -32,7 +33,9 @@ class TestServiceRegistry(unittest.TestCase):
 
     def test_404_returned_for_nonexistent_service_revision(self):
         """Test that a 404 is returned when checking for a non-existent service revision."""
-        request = requests.Request(url=f"https://my-service-registry.com/{SUID}", params={"revision_tag": REVISION_TAG})
+        request = flask.Request(environ={})
+        request.path = f"https://my-service-registry.com/{SUID}"
+        request.args = {"revision_tag": REVISION_TAG}
 
         with patch.dict(os.environ, {"ARTIFACT_REGISTRY_REPOSITORY_ID": ARTIFACT_REPOSITORY_ID}):
             with patch("google.cloud.artifactregistry_v1.ArtifactRegistryClient"):
@@ -46,7 +49,9 @@ class TestServiceRegistry(unittest.TestCase):
 
     def test_200_returned_for_existing_service_revision(self):
         """Test that a 200 is returned when checking for an existing service revision."""
-        request = requests.Request(url=f"https://my-service-registry.com/{SUID}", params={"revision_tag": REVISION_TAG})
+        request = flask.Request(environ={})
+        request.path = f"https://my-service-registry.com/{SUID}"
+        request.args = {"revision_tag": REVISION_TAG}
 
         with patch.dict(os.environ, {"ARTIFACT_REGISTRY_REPOSITORY_ID": ARTIFACT_REPOSITORY_ID}):
             with patch("google.cloud.artifactregistry_v1.ArtifactRegistryClient", MockArtifactRegistryClient):
