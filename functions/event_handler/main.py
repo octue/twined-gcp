@@ -22,8 +22,6 @@ COMPUTE_PROVIDER = "GOOGLE_KUEUE"
 DEFAULT_CPUS = 2
 DEFAULT_MEMORY = "2Gi"
 
-USE_KUEUE = os.environ.get("USE_KUEUE", "1") == "1"
-
 
 @functions_framework.cloud_event
 def handle_event(cloud_event):
@@ -81,7 +79,7 @@ def handle_event(cloud_event):
 
     logger.info("Successfully stored event in %r.", bigquery_events_table)
 
-    if USE_KUEUE and original_event["kind"] == "question":
+    if os.environ.get("USE_KUEUE", "1") == "1" and original_event["kind"] == "question":
         _dispatch_question_as_kueue_job(original_event, original_attributes)
 
 
