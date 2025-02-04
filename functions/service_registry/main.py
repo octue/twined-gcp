@@ -7,6 +7,11 @@ from google.cloud import artifactregistry_v1
 
 @functions_framework.http
 def handle_request(request):
+    """Handle a request to check if a service revision exists.
+
+    :param requests.Request request: the request
+    :return tuple(str, int): a message and HTTP response code
+    """
     suid = urllib.parse.urlparse(request.url).path.strip("/")
     revision_tag = request.params.get("revision_tag")
 
@@ -30,6 +35,12 @@ def handle_request(request):
 
 
 def _check_service_revision_existence(sruid, repository_id):
+    """Check if an image corresponding to the given service revision exists in the artifact registry repository.
+
+    :param str sruid: the service revision unique identifier (SRUID) for the service revision
+    :param str repository_id: the artifact registry repository ID in "projects/<project-id>/locations/<region>/repositories/<repository-name>" form
+    :return bool: `True` if the service revision exists
+    """
     repository_id = repository_id.strip("/")
 
     client = artifactregistry_v1.ArtifactRegistryClient()
