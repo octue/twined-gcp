@@ -8,7 +8,14 @@ from google.cloud import artifactregistry_v1
 @functions_framework.http
 def handle_request(request):
     suid = urllib.parse.urlparse(request.url).path.strip("/")
-    revision_tag = request.params["revision_tag"]
+    revision_tag = request.params.get("revision_tag")
+
+    if not revision_tag:
+        return (
+            "This service registry doesn't support getting default SRUIDs. Please provide the `revision_tag` parameter",
+            400,
+        )
+
     sruid = f"{suid}:{revision_tag}"
 
     service_revision_exists = _check_service_revision_existence(
@@ -19,7 +26,7 @@ def handle_request(request):
     if service_revision_exists:
         return ("", 200)
 
-    return ("", 404)
+    return ("Service revision does not exist", 404)
 
 
 def _check_service_revision_existence(sruid, repository_id):

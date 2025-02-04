@@ -15,6 +15,21 @@ revision_tag = "0.1.0"
 
 
 class TestServiceRegistry(unittest.TestCase):
+    def test_400_returned_if_revision_tag_not_supplied(self):
+        """Test that a 400 is returned if a revision tag isn't supplied."""
+        request = requests.Request(url=f"https://my-service-registry.com/{suid}")
+
+        with patch.dict(os.environ, {"ARTIFACT_REGISTRY_REPOSITORY_ID": artifact_repository_id}):
+            response = handle_request(request)
+
+        self.assertEqual(
+            response,
+            (
+                "This service registry doesn't support getting default SRUIDs. Please provide the `revision_tag` parameter",
+                400,
+            ),
+        )
+
     def test_404_returned_for_nonexistent_service_revision(self):
         """Test that a 404 is returned when checking for a non-existent service revision."""
         request = requests.Request(url=f"https://my-service-registry.com/{suid}", params={"revision_tag": revision_tag})
@@ -26,7 +41,7 @@ class TestServiceRegistry(unittest.TestCase):
             ):
                 response = handle_request(request)
 
-        self.assertEqual(response, ("", 404))
+        self.assertEqual(response, ("Service revision does not exist", 404))
 
     def test_200_returned_for_existing_service_revision(self):
         """Test that a 200 is returned when checking for an existing service revision."""
