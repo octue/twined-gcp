@@ -7,7 +7,11 @@ from google.cloud import artifactregistry_v1
 
 @functions_framework.http
 def handle_request(request):
-    """Handle a request to check if a service revision exists.
+    """Handle a service registry request. This service registry supports:
+    - Checking if a service revision exists
+
+    It does not support:
+    - Getting the default SRUID for a service
 
     :param requests.Request request: the request
     :return tuple(str, int): a message and HTTP response code
