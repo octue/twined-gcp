@@ -35,9 +35,11 @@ class TestEventHandler(unittest.TestCase):
             "os.environ",
             {
                 "BIGQUERY_EVENTS_TABLE": "my-table",
-                "OCTUE_SERVICES_TOPIC": "test.octue.services",
+                "OCTUE_SERVICES_TOPIC_NAME": "test.octue.services",
                 "KUEUE_LOCAL_QUEUE": "test-queue",
                 "ARTIFACT_REGISTRY_REPOSITORY_URL": "some-artifact-registry-url",
+                "KUBERNETES_SERVICE_ACCOUNT_NAME": "kubernetes-sa",
+                "KUBERNETES_CLUSTER_ID": "kubernetes-cluster",
             },
         )
 
@@ -102,11 +104,11 @@ class TestEventHandler(unittest.TestCase):
 
         with patch("functions.event_handler.main.BigQueryClient", return_value=MockBigQueryClient()):
             with patch("kubernetes.client.BatchV1Api.create_namespaced_job") as mock_create_namespaced_job:
-                with patch("kubernetes.config.load_kube_config"):
+                with patch("functions.event_handler.main._configure_kubernetes_client"):
                     handle_event(cloud_event)
 
         job = mock_create_namespaced_job.call_args.args[1]
-        self.assertEqual(job.metadata.name, f"octue-another-service-1.0.0-question-{QUESTION_UUID}")
+        self.assertEqual(job.metadata.name, f"question-{QUESTION_UUID}")
         self.assertEqual(job.metadata.labels["kueue.x-k8s.io/queue-name"], "test-queue")
 
         container = job.spec.template["spec"]["containers"][0]
@@ -125,7 +127,7 @@ class TestEventHandler(unittest.TestCase):
         self.assertEqual(
             environment_variables,
             [
-                {"name": "OCTUE_SERVICES_TOPIC", "value": "test.octue.services", "value_from": None},
+                {"name": "OCTUE_SERVICES_TOPIC_NAME", "value": "test.octue.services", "value_from": None},
                 {"name": "COMPUTE_PROVIDER", "value": "GOOGLE_KUEUE", "value_from": None},
                 {"name": "OCTUE_SERVICE_REVISION_TAG", "value": "1.0.0", "value_from": None},
             ],
