@@ -27,6 +27,7 @@ def handle_event(cloud_event):
     1. Decode the Pub/Sub message into an Octue Twined service event and its attributes
     2. Store it in a BigQuery table
     3. If it's a question and Kueue is enabled, dispatch it as a job to Kueue
+    4. If it's a cancellation, request cancellation of the given question
 
     :param cloudevents.http.CloudEvent cloud_event: a Google Cloud Pub/Sub message as a CloudEvent
     :return None:
@@ -79,6 +80,20 @@ def handle_event(cloud_event):
 
     if original_event["kind"] == "question":
         _dispatch_question_as_kueue_job(original_event, original_attributes)
+    elif original_event["kind"] == "cancellation":
+        _cancel_kueue_job(original_attributes["question_uuid"])
+
+
+def _cancel_kueue_job(question_uuid):
+    """Request cancellation of a question currently running on Kueue.
+
+    :param str question_uuid: the question UUID of the question to cancel
+    :return None:
+    """
+    _configure_kubernetes_client()
+    batch_api = kubernetes.client.BatchV1Api()
+    batch_api.delete_namespaced_job(name=f"question-{question_uuid}", namespace="default")
+    logger.info("Requested cancellation of question %r on Kueue.", question_uuid)
 
 
 def _dispatch_question_as_kueue_job(event, attributes):
@@ -149,7 +164,7 @@ def _dispatch_question_as_kueue_job(event, attributes):
 
     _configure_kubernetes_client()
     batch_api = kubernetes.client.BatchV1Api()
-    batch_api.create_namespaced_job("default", job)
+    batch_api.create_namespaced_job(namespace="default", body=job)
     logger.info("Dispatched to Kueue (%r): question %r.", attributes["recipient"], attributes["question_uuid"])
 
 
