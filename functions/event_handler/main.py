@@ -21,6 +21,7 @@ BACKEND = "GoogleCloudPubSub"
 COMPUTE_PROVIDER = "GOOGLE_KUEUE"
 DEFAULT_CPUS = 2
 DEFAULT_MEMORY = "2Gi"
+DEFAULT_EPHEMERAL_STORAGE = "1Gi"
 
 
 @functions_framework.cloud_event
@@ -114,6 +115,7 @@ def _dispatch_question_as_kueue_job(event, attributes):
         "requests": {
             "cpu": attributes.get("resources_cpu", DEFAULT_CPUS),
             "memory": attributes.get("resource_memory", DEFAULT_MEMORY),
+            "ephemeral_storage": attributes.get("ephemeral_storage", DEFAULT_EPHEMERAL_STORAGE),
         }
     }
 
