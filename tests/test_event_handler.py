@@ -107,7 +107,7 @@ class TestEventHandler(unittest.TestCase):
 
         with patch("functions.event_handler.main.BigQueryClient", return_value=MockBigQueryClient()):
             with patch("kubernetes.client.BatchV1Api.create_namespaced_job") as mock_create_namespaced_job:
-                with patch("functions.event_handler.main._configure_kubernetes_client"):
+                with patch("functions.event_handler.main._authenticate_with_kubernetes_cluster"):
                     handle_event(cloud_event)
 
         job = mock_create_namespaced_job.call_args.kwargs["body"]
@@ -150,7 +150,7 @@ class TestEventHandler(unittest.TestCase):
 
         with patch("functions.event_handler.main.BigQueryClient", return_value=MockBigQueryClient()):
             with patch("kubernetes.client.BatchV1Api.delete_namespaced_job") as mock_delete_namespaced_job:
-                with patch("functions.event_handler.main._configure_kubernetes_client"):
+                with patch("functions.event_handler.main._authenticate_with_kubernetes_cluster"):
                     handle_event(cloud_event)
 
         job_name = mock_delete_namespaced_job.call_args.kwargs["name"]

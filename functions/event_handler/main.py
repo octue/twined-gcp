@@ -90,7 +90,7 @@ def _cancel_kueue_job(question_uuid):
     :param str question_uuid: the question UUID of the question to cancel
     :return None:
     """
-    _configure_kubernetes_client()
+    _authenticate_with_kubernetes_cluster()
     batch_api = kubernetes.client.BatchV1Api()
     batch_api.delete_namespaced_job(name=f"question-{question_uuid}", namespace="default")
     logger.info("Requested cancellation of question %r on Kueue.", question_uuid)
@@ -162,13 +162,17 @@ def _dispatch_question_as_kueue_job(event, attributes):
         spec=kubernetes.client.V1JobSpec(parallelism=1, completions=1, suspend=True, template=job_template),
     )
 
-    _configure_kubernetes_client()
+    _authenticate_with_kubernetes_cluster()
     batch_api = kubernetes.client.BatchV1Api()
     batch_api.create_namespaced_job(namespace="default", body=job)
     logger.info("Dispatched to Kueue (%r): question %r.", attributes["recipient"], attributes["question_uuid"])
 
 
-def _configure_kubernetes_client():
+def _authenticate_with_kubernetes_cluster():
+    """Authenticate with the kubernetes cluster using the default credentials.
+
+    :return None:
+    """
     credentials, project_id = google.auth.default()
     auth_request = google.auth.transport.requests.Request()
     credentials.refresh(auth_request)
