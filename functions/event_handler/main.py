@@ -19,9 +19,6 @@ logger = logging.getLogger(__name__)
 
 BACKEND = "GoogleCloudPubSub"
 COMPUTE_PROVIDER = "GOOGLE_KUEUE"
-DEFAULT_CPUS = 1
-DEFAULT_MEMORY = "500Mi"
-DEFAULT_EPHEMERAL_STORAGE = "1Gi"
 
 
 @functions_framework.cloud_event
@@ -113,9 +110,9 @@ def _dispatch_question_as_kueue_job(event, attributes):
 
     resources = {
         "requests": {
-            "cpu": attributes.get("resources_cpu", DEFAULT_CPUS),
-            "memory": attributes.get("resource_memory", DEFAULT_MEMORY),
-            "ephemeral_storage": attributes.get("ephemeral_storage", DEFAULT_EPHEMERAL_STORAGE),
+            "cpu": attributes.get("resources_cpu", os.environ["QUESTION_DEFAULT_CPUS"]),
+            "memory": attributes.get("resource_memory", os.environ["QUESTION_DEFAULT_MEMORY"]),
+            "ephemeral_storage": attributes.get("ephemeral_storage", os.environ["QUESTION_DEFAULT_EPHEMERAL_STORAGE"]),
         }
     }
 
