@@ -110,7 +110,7 @@ def _dispatch_question_as_kueue_job(event, attributes):
 
     resources = {
         "requests": {
-            "cpus": attributes.get("resources_cpu", os.environ["QUESTION_DEFAULT_CPUS"]),
+            "cpus": attributes.get("resources_cpu", int(os.environ["QUESTION_DEFAULT_CPUS"])),
             "memory": attributes.get("resource_memory", os.environ["QUESTION_DEFAULT_MEMORY"]),
             "ephemeral_storage": attributes.get("ephemeral_storage", os.environ["QUESTION_DEFAULT_EPHEMERAL_STORAGE"]),
         }
