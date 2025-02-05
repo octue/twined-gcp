@@ -40,6 +40,9 @@ class TestEventHandler(unittest.TestCase):
                 "ARTIFACT_REGISTRY_REPOSITORY_URL": "some-artifact-registry-url",
                 "KUBERNETES_SERVICE_ACCOUNT_NAME": "kubernetes-sa",
                 "KUBERNETES_CLUSTER_ID": "kubernetes-cluster",
+                "QUESTION_DEFAULT_CPUS": "1",
+                "QUESTION_DEFAULT_MEMORY": "500Mi",
+                "QUESTION_DEFAULT_EPHEMERAL_STORAGE": "1Gi",
             },
         )
 
@@ -107,7 +110,7 @@ class TestEventHandler(unittest.TestCase):
                 with patch("functions.event_handler.main._configure_kubernetes_client"):
                     handle_event(cloud_event)
 
-        job = mock_create_namespaced_job.call_args.args[1]
+        job = mock_create_namespaced_job.call_args.kwargs["body"]
         self.assertEqual(job.metadata.name, f"question-{QUESTION_UUID}")
         self.assertEqual(job.metadata.labels["kueue.x-k8s.io/queue-name"], "test-queue")
 
@@ -115,7 +118,7 @@ class TestEventHandler(unittest.TestCase):
         self.assertEqual(container.name, job.metadata.name)
         self.assertEqual(container.image, f"some-artifact-registry-url/{SRUID}")
         self.assertEqual(container.command, ["octue", "question", "ask", "local"])
-        self.assertEqual(container.resources, {"requests": {"cpu": 2, "memory": "2Gi"}})
+        self.assertEqual(container.resources, {"requests": {"cpu": 1, "ephemeral-storage": "1Gi", "memory": "500Mi"}})
 
         self.assertEqual(
             container.args,
