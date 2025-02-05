@@ -135,3 +135,23 @@ class TestEventHandler(unittest.TestCase):
                 {"name": "OCTUE_SERVICE_REVISION_TAG", "value": "1.0.0", "value_from": None},
             ],
         )
+
+    def test_question_cancellation(self):
+        """Test that cancellation events result in job deletion."""
+        cloud_event = MockCloudEvent(
+            data={
+                "message": {
+                    "data": base64.b64encode(b'{"kind": "cancellation"}'),
+                    "attributes": copy.copy(EVENT_ATTRIBUTES),
+                    "messageId": "1234",
+                }
+            }
+        )
+
+        with patch("functions.event_handler.main.BigQueryClient", return_value=MockBigQueryClient()):
+            with patch("kubernetes.client.BatchV1Api.delete_namespaced_job") as mock_delete_namespaced_job:
+                with patch("functions.event_handler.main._configure_kubernetes_client"):
+                    handle_event(cloud_event)
+
+        job_name = mock_delete_namespaced_job.call_args.kwargs["name"]
+        self.assertEqual(job_name, f"question-{EVENT_ATTRIBUTES['question_uuid']}")
