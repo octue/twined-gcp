@@ -159,7 +159,15 @@ def _dispatch_question_as_kueue_job(event, attributes):
         api_version="batch/v1",
         kind="Job",
         metadata=job_metadata,
-        spec=kubernetes.client.V1JobSpec(parallelism=1, completions=1, suspend=True, template=job_template),
+        spec=kubernetes.client.V1JobSpec(
+            parallelism=1,
+            completions=1,
+            # Jobs must be suspended at creation for Kueue to manage them.
+            suspend=True,
+            template=job_template,
+            # Setting a backoff limit of 1 (in combination with a pod restart policy of "never") means we can cancel a question by deleting its pod.
+            backoff_limit=1,
+        ),
     )
 
     _authenticate_with_kubernetes_cluster()
