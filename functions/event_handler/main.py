@@ -79,17 +79,24 @@ def handle_event(cloud_event):
 
     logger.info("Successfully stored event in %r.", bigquery_events_table)
 
+    if original_event["kind"] not in {"question", "cancellation"}:
+        return
+
+    _authenticate_with_kubernetes_cluster()
+    batch_api = kubernetes.client.BatchV1Api()
+
     if original_event["kind"] == "question":
-        _dispatch_question_as_kueue_job(original_event, original_attributes)
+        _dispatch_question_as_kueue_job(original_event, original_attributes, batch_api)
     elif original_event["kind"] == "cancellation":
-        _cancel_kueue_job(original_attributes["question_uuid"])
+        _cancel_kueue_job(original_attributes["question_uuid"], batch_api)
 
 
-def _dispatch_question_as_kueue_job(event, attributes):
+def _dispatch_question_as_kueue_job(event, attributes, batch_api):
     """Dispatch a question event to Kueue as a job.
 
     :param dict event: a question event from an Octue Twined service
     :param dict attributes: the attributes accompanying the question event
+    :param kubernetes.client.BatchV1Api batch_api: the kubernetes batch API
     :return None:
     """
     octue_services_topic_name = os.environ["OCTUE_SERVICES_TOPIC_NAME"]
@@ -162,20 +169,17 @@ def _dispatch_question_as_kueue_job(event, attributes):
         ),
     )
 
-    _authenticate_with_kubernetes_cluster()
-    batch_api = kubernetes.client.BatchV1Api()
     batch_api.create_namespaced_job(namespace="default", body=job)
     logger.info("Dispatched to Kueue (%r): question %r.", attributes["recipient"], attributes["question_uuid"])
 
 
-def _cancel_kueue_job(question_uuid):
+def _cancel_kueue_job(question_uuid, batch_api):
     """Request cancellation of a question currently running on Kueue.
 
     :param str question_uuid: the question UUID of the question to cancel
+    :param kubernetes.client.BatchV1Api batch_api: the kubernetes batch API
     :return None:
     """
-    _authenticate_with_kubernetes_cluster()
-    batch_api = kubernetes.client.BatchV1Api()
     batch_api.delete_namespaced_job(name=f"question-{question_uuid}", namespace="default")
     logger.info("Requested cancellation of question %r on Kueue.", question_uuid)
 
