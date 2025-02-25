@@ -9,7 +9,8 @@ contains these cloud functions:
 ## Terraform deployment
 
 The cloud functions are automatically deployed and configured when the
-[`octue-twined-cluster` Terraform module](https://github.com/octue/terraform-octue-twined-cluster) is used.
+[`octue-twined-cluster` Terraform module](https://github.com/octue/terraform-octue-twined-cluster) is used. They can
+also be manually deployed, but this isn't recommended.
 
 # Event handler cloud function
 
@@ -29,7 +30,8 @@ Twined framework in the same service network will be automatically handled from 
 
 ## Configuration
 
-The following environment variables are required.
+The following environment variables are required. Note that [deploying with Terraform](#terraform-deployment) takes care
+of this for you.
 
 | Name                                 | Description                                                                                                                                               |
 | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -95,7 +97,8 @@ curl "<cloud-function-url>/my-org/my-service"
 
 ## Configuration
 
-The following environment variables are required.
+The following environment variables are required. Note that [deploying with Terraform](#terraform-deployment) takes care
+of this for you.
 
 | Name                              | Description                                                                                                                                                                    |
 | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
