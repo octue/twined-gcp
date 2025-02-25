@@ -39,3 +39,17 @@ The following environment variables are required.
 | `QUESTION_DEFAULT_EPHEMERAL_STORAGE` | The amount of ephemeral storage to request for each question by default e.g. `1Gi`                                                                        |
 
 ## Service registry cloud function
+
+This function acts as a registry of available service revisions. In response to an HTTP request, it can
+
+- Check if a service revision exists (i.e. if an image for it exists in the configured artifact registry repository)
+- Get the revision tag of the default revision of a service, if one exists. This works by looking for an image for the
+  service with the `default` tag and returning a more specific tag for it (e.g. `1.0.5`)
+
+### Configuration
+
+The following environment variables are required.
+
+| Name                              | Description                                                                                                                                                                    |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `ARTIFACT_REGISTRY_REPOSITORY_ID` | The full ID of the artifact registry repository that service revision images are stored in in `projects/<project-id>/locations/<region>/repositories/<repository-name>` format |
