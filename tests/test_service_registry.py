@@ -22,13 +22,11 @@ class TestServiceRegistry(unittest.TestCase):
         request.path = f"https://my-service-registry.com/{SUID}"
         request.args = {"revision_tag": REVISION_TAG}
 
+        MockClient = MockArtifactRegistryClient.from_images([])
+
         with patch.dict(os.environ, {"ARTIFACT_REGISTRY_REPOSITORY_ID": ARTIFACT_REPOSITORY_ID}):
-            with patch("google.cloud.artifactregistry_v1.ArtifactRegistryClient"):
-                with patch(
-                    "google.cloud.artifactregistry_v1.services.artifact_registry.client.ArtifactRegistryClient.list_docker_images",
-                    return_value=[],
-                ):
-                    response = handle_request(request)
+            with patch("google.cloud.artifactregistry_v1.ArtifactRegistryClient", MockClient):
+                response = handle_request(request)
 
         self.assertEqual(response, ("Service revision does not exist", 404))
 
@@ -38,7 +36,7 @@ class TestServiceRegistry(unittest.TestCase):
         request.path = f"https://my-service-registry.com/{SUID}"
         request.args = {"revision_tag": REVISION_TAG}
 
-        mock_registry_client = MockArtifactRegistryClient.from_images(
+        MockClient = MockArtifactRegistryClient.from_images(
             [
                 SimpleNamespace(
                     name=f"{ARTIFACT_REPOSITORY_ID}/dockerImages/{QUOTED_SUID}@some-sha",
@@ -48,7 +46,7 @@ class TestServiceRegistry(unittest.TestCase):
         )
 
         with patch.dict(os.environ, {"ARTIFACT_REGISTRY_REPOSITORY_ID": ARTIFACT_REPOSITORY_ID}):
-            with patch("google.cloud.artifactregistry_v1.ArtifactRegistryClient", mock_registry_client):
+            with patch("google.cloud.artifactregistry_v1.ArtifactRegistryClient", MockClient):
                 response = handle_request(request)
 
         self.assertEqual(response, ("Service revision found", 200))
