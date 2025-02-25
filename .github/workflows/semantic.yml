@@ -8,7 +8,7 @@ on:
 jobs:
   check-semantic-version:
     if: "!contains(github.event.head_commit.message, 'skipci')"
-    uses: octue/workflows/.github/workflows/check-semantic-version.yml@main
+    uses: octue/workflows/.github/workflows/check-semantic-version.yml@0.4.3
     with:
       path: pyproject.toml
       breaking_change_indicated_by: minor
