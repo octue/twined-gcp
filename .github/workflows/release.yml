@@ -22,11 +22,9 @@ jobs:
           python-version: 3.12
 
       - name: Install requirements
-        run: pip install -r functions/event_handler/requirements.txt
+        run: pip install .
 
       - name: Run tests
-        env:
-          BIGQUERY_EVENTS_TABLE: my-table
         run: python -m unittest
 
   release:
@@ -70,11 +68,20 @@ jobs:
           workload_identity_provider: 'projects/899129607296/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
           service_account: github-actions@octue-twined-gcp.iam.gserviceaccount.com
 
-      - name: Zip source code
+      - name: Zip event handler source code
         run: cd functions/event_handler && zip -r ${{ needs.release.outputs.package_version }}.zip .
 
-      - name: Upload source zip file
+      - name: Upload event handler source zip file
         uses: google-github-actions/upload-cloud-storage@v2
         with:
           path: "functions/event_handler/${{ needs.release.outputs.package_version }}.zip"
           destination: "twined-gcp/event_handler"
+
+      - name: Zip service registry source code
+        run: cd functions/service_registry && zip -r ${{ needs.release.outputs.package_version }}.zip .
+
+      - name: Upload service registry source zip file
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          path: "functions/service_registry/${{ needs.release.outputs.package_version }}.zip"
+          destination: "twined-gcp/service_registry"

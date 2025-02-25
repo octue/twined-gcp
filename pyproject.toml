@@ -1,0 +1,39 @@
+[project]
+name = "twined-gcp"
+version = "0.7.0"
+description = ""
+authors = [
+    {name = "Marcus Lugg", email = "marcus@octue.com"}
+]
+readme = "README.md"
+packages = ["functions"]
+dependencies = [
+    "functions-framework (>=3,<4)",
+    "google-cloud-bigquery (>=3.18.0, <=4)",
+    "kubernetes (>=31,<32)",
+    "google-cloud-container (>=2,<3)",
+    "google-cloud-artifact-registry (>=1,<2)",
+]
+requires-python = ">=3.13,<4"
+
+[tool.poetry]
+package-mode = false
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^4"
+coverage = "^7.6.12"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 120
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes.
+lint.select = ["E", "F"]
+# Ignore E501 line-too-long - see https://docs.astral.sh/ruff/faq/#is-the-ruff-linter-compatible-with-black for why
+lint.ignore = ["F405", "E501", "E203", "E731", "N818"]
+
+[tool.ruff.lint.isort]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+force-sort-within-sections = true
