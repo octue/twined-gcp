@@ -1,3 +1,33 @@
+[project]
+name = "twined-gcp"
+version = "0.7.0"
+description = ""
+authors = [
+    {name = "Marcus Lugg", email = "marcus@octue.com"}
+]
+readme = "README.md"
+packages = ["functions"]
+
+[tool.poetry]
+packages = [
+    { include = "functions" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.13"
+functions-framework = "^3"
+google-cloud-bigquery = ">=3.18.0,<=4"
+kubernetes ="^31"
+google-cloud-container = "^2"
+google-cloud-artifact-registry = "^1"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^4"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.ruff]
 line-length = 120
 # Enable pycodestyle (`E`) and Pyflakes (`F`) codes.
