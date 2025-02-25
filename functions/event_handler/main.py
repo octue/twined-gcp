@@ -86,9 +86,9 @@ def handle_event(cloud_event):
 
 
 def _dispatch_question_as_kueue_job(event, attributes):
-    """Dispatch a question events to Kueue as a job.
+    """Dispatch a question event to Kueue as a job.
 
-    :param dict event: an Octue Twined service question event
+    :param dict event: a question event from an Octue Twined service
     :param dict attributes: the attributes accompanying the question event
     :return None:
     """
@@ -96,32 +96,29 @@ def _dispatch_question_as_kueue_job(event, attributes):
     kubernetes_service_account_name = os.environ["KUBERNETES_SERVICE_ACCOUNT_NAME"]
     kueue_local_queue = os.environ["KUEUE_LOCAL_QUEUE"]
     artifact_registry_repository_url = os.environ["ARTIFACT_REGISTRY_REPOSITORY_URL"]
+    question_default_cpus = int(os.environ["QUESTION_DEFAULT_CPUS"])
+    question_default_memory = os.environ["QUESTION_DEFAULT_MEMORY"]
+    question_default_ephemeral_storage = os.environ["QUESTION_DEFAULT_EPHEMERAL_STORAGE"]
 
-    job_name = f"question-{attributes['question_uuid']}"
-
-    job_metadata = kubernetes.client.V1ObjectMeta(
-        name=job_name,
-        labels={"kueue.x-k8s.io/queue-name": kueue_local_queue},
-    )
-
-    args = ["--attributes", json.dumps(attributes)]
+    # Encode question as JSON to be passed to the `octue` CLI in the container.
+    job_args = ["--attributes", json.dumps(attributes)]
 
     if event.get("input_values"):
-        args.extend(["--input-values", json.dumps(event["input_values"])])
+        job_args.extend(["--input-values", json.dumps(event["input_values"])])
 
     if event.get("input_manifest"):
-        args.extend(["--input-manifest", json.dumps(event["input_manifest"])])
+        job_args.extend(["--input-manifest", json.dumps(event["input_manifest"])])
 
     resources = {
         "requests": {
-            "cpu": attributes.get("cpus", int(os.environ["QUESTION_DEFAULT_CPUS"])),
-            "memory": attributes.get("memory", os.environ["QUESTION_DEFAULT_MEMORY"]),
-            "ephemeral-storage": attributes.get("ephemeral_storage", os.environ["QUESTION_DEFAULT_EPHEMERAL_STORAGE"]),
+            "cpu": attributes.get("cpus", question_default_cpus),
+            "memory": attributes.get("memory", question_default_memory),
+            "ephemeral-storage": attributes.get("ephemeral_storage", question_default_ephemeral_storage),
         }
     }
 
-    service_namespace, service_name_and_revision_tag = attributes["recipient"].split("/")
-    _, service_revision_tag = service_name_and_revision_tag.split(":")
+    job_name = f"question-{attributes['question_uuid']}"
+    service_revision_tag = attributes["recipient"].split(":")[-1]
 
     job_template = {
         "spec": {
@@ -130,7 +127,7 @@ def _dispatch_question_as_kueue_job(event, attributes):
                     image=artifact_registry_repository_url + "/" + attributes["recipient"],
                     name=job_name,
                     command=["octue", "question", "ask", "local"],
-                    args=args,
+                    args=job_args,
                     resources=resources,
                     env=[
                         kubernetes.client.V1EnvVar(name="OCTUE_SERVICES_TOPIC_NAME", value=octue_services_topic_name),
@@ -144,6 +141,11 @@ def _dispatch_question_as_kueue_job(event, attributes):
         }
     }
 
+    job_metadata = kubernetes.client.V1ObjectMeta(
+        name=job_name,
+        labels={"kueue.x-k8s.io/queue-name": kueue_local_queue},
+    )
+
     job = kubernetes.client.V1Job(
         api_version="batch/v1",
         kind="Job",
@@ -154,7 +156,8 @@ def _dispatch_question_as_kueue_job(event, attributes):
             # Jobs must be suspended at creation for Kueue to manage them.
             suspend=True,
             template=job_template,
-            # Setting a backoff limit of 1 (in combination with a pod restart policy of "never") means we can cancel a question by deleting its pod.
+            # Setting a backoff limit of 1 (in combination with a pod restart policy of "never") means we can cancel a
+            # question by deleting its pod.
             backoff_limit=1,
         ),
     )
