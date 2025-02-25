@@ -1,5 +1,5 @@
 exclude: "build|docs|node_modules|.cache|.git|.tox|.storybook/stories/assets|src/assets|((?:[^/]*/)*)(.svg)|((?:[^/]*/)*)(.xml)"
-default_stages: [commit]
+default_stages: [pre-commit]
 fail_fast: true
 default_language_version:
   python: python3 # force all unspecified python hooks to run python3
