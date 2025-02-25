@@ -22,6 +22,11 @@ to. Its process is:
 3. If the event is a question, dispatch it as a job to Kueue
 4. If the event is a cancellation, request cancellation of the given question
 
+## Usage
+
+Deploy the cloud function using [Terraform](#terraform-deployment). All questions asked and events emitted by the Octue
+Twined framework in the same service network will be automatically handled from now on.
+
 ## Configuration
 
 The following environment variables are required.
@@ -48,7 +53,7 @@ This function acts as a registry of available service revisions. In response to 
 
 ## Usage
 
-First, deploy this cloud function as a service registry using [Terraform](#terraform-deployment)
+First, deploy the cloud function using [Terraform](#terraform-deployment).
 
 ### In a Twined service
 
