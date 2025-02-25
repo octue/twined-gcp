@@ -13,19 +13,22 @@ jobs:
     if: "github.event.pull_request.merged == true"
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.12
+          python-version: '3.13'
+
+      - name: Install poetry
+        uses: snok/install-poetry@v1
 
       - name: Install requirements
-        run: pip install .
+        run: poetry install
 
       - name: Run tests
-        run: python -m unittest
+        run: poetry run python -m unittest
 
   release:
     needs: run-tests
@@ -34,9 +37,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Install poetry
+      uses: snok/install-poetry@v1
+
     - name: Get package version
       id: get-package-version
-      run: echo "package_version=$(python setup.py --version)" >> $GITHUB_OUTPUT
+      run: echo "package_version=$(poetry version -s)" >> $GITHUB_OUTPUT
 
     - name: Create release
       uses: actions/create-release@v1
