@@ -84,18 +84,6 @@ def handle_event(cloud_event):
         _cancel_kueue_job(original_attributes["question_uuid"])
 
 
-def _cancel_kueue_job(question_uuid):
-    """Request cancellation of a question currently running on Kueue.
-
-    :param str question_uuid: the question UUID of the question to cancel
-    :return None:
-    """
-    _authenticate_with_kubernetes_cluster()
-    batch_api = kubernetes.client.BatchV1Api()
-    batch_api.delete_namespaced_job(name=f"question-{question_uuid}", namespace="default")
-    logger.info("Requested cancellation of question %r on Kueue.", question_uuid)
-
-
 def _dispatch_question_as_kueue_job(event, attributes):
     """Dispatch a question events to Kueue as a job.
 
@@ -174,6 +162,18 @@ def _dispatch_question_as_kueue_job(event, attributes):
     batch_api = kubernetes.client.BatchV1Api()
     batch_api.create_namespaced_job(namespace="default", body=job)
     logger.info("Dispatched to Kueue (%r): question %r.", attributes["recipient"], attributes["question_uuid"])
+
+
+def _cancel_kueue_job(question_uuid):
+    """Request cancellation of a question currently running on Kueue.
+
+    :param str question_uuid: the question UUID of the question to cancel
+    :return None:
+    """
+    _authenticate_with_kubernetes_cluster()
+    batch_api = kubernetes.client.BatchV1Api()
+    batch_api.delete_namespaced_job(name=f"question-{question_uuid}", namespace="default")
+    logger.info("Requested cancellation of question %r on Kueue.", question_uuid)
 
 
 def _authenticate_with_kubernetes_cluster():
