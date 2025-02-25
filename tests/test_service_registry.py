@@ -51,7 +51,7 @@ class TestServiceRegistry(unittest.TestCase):
             with patch("google.cloud.artifactregistry_v1.ArtifactRegistryClient", mock_registry_client):
                 response = handle_request(request)
 
-        self.assertEqual(response, ("", 200))
+        self.assertEqual(response, ("Service revision found", 200))
 
 
 class TestServiceRegistryWithDefaultServiceRevisions(unittest.TestCase):

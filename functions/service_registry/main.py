@@ -9,10 +9,10 @@ from google.cloud import artifactregistry_v1
 def handle_request(request):
     """Handle a service registry request. This service registry supports:
     - Checking if a service revision exists
-    - Getting the default SRUID for a service
+    - Getting the default revision tag for a service
 
     :param flask.Request request: the request
-    :return tuple(str, int): a message and HTTP response code
+    :return tuple(str|dict, int): a message and HTTP response code
     """
     suid = urllib.parse.urlparse(request.path).path.strip("/")
     revision_tag = request.args.get("revision_tag")
@@ -24,7 +24,7 @@ def handle_request(request):
     sruid = f"{suid}:{revision_tag}"
 
     if sruid in tagged_images:
-        return ("", 200)
+        return ("Service revision found", 200)
 
     return ("Service revision does not exist", 404)
 
