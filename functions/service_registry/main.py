@@ -30,10 +30,10 @@ def handle_request(request):
 
 
 def _get_tagged_images(repository_id):
-    """Get representations of the tagged images from the artifact registry repository.
+    """Get a representation of the tagged images that exist in the artifact registry repository.
 
-    :param str repository_id: the artifact registry repository ID in "projects/<project-id>/locations/<region>/repositories/<repository-name>" form
-    :return dict: the names of the tagged images (e.g. "octue/my-image:0.1.0") mapped to the image objects
+    :param str repository_id: the artifact registry repository ID in "projects/<project-id>/locations/<region>/repositories/<repository-name>" format
+    :return dict: the names of the tagged images (e.g. "octue/my-image:0.1.0") mapped to their image representations
     """
     repository_id = repository_id.strip("/")
 
@@ -42,7 +42,7 @@ def _get_tagged_images(repository_id):
     tagged_images = {}
 
     for image in client.list_docker_images(request=request):
-        # Untagged images aren't full service revision images.
+        # Untagged images aren't service revision images.
         if not image.tags:
             continue
 
@@ -55,11 +55,11 @@ def _get_tagged_images(repository_id):
 
 
 def _get_default_revision(suid, tagged_images):
-    """Get the revision tag of the default service revision for the given SUID if one exists in the dictionary of
+    """Get the revision tag of the default service revision (if one exists) for the given service from the dictionary of
     tagged images.
 
-    :param str suid: the service unique identifier (SUID) to check for a default revision of
-    :param dict tagged_images: the list of tagged images in the artifact registry
+    :param str suid: the service unique identifier (SUID) for the service to check for a default revision of
+    :param dict tagged_images: the tagged images that exist in the artifact registry repository
     :return (dict|str, int): the response
     """
     default_sruid = f"{suid}:default"
