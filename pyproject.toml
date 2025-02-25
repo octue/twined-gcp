@@ -23,6 +23,7 @@ google-cloud-artifact-registry = "^1"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^4"
+coverage = "^7.6.12"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
