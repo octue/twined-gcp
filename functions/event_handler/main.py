@@ -62,7 +62,7 @@ def handle_event(cloud_event):
         "sender_sdk_version": attributes.pop("sender_sdk_version"),
         "recipient": attributes.pop("recipient"),
         "question_uuid": attributes.pop("question_uuid"),
-        "parent_question_uuid": attributes.pop("parent_question_uuid"),
+        "parent_question_uuid": attributes.pop("parent_question_uuid", None),
         "originator_question_uuid": attributes.pop("originator_question_uuid"),
         # Backend-specific metadata.
         "backend": BACKEND,

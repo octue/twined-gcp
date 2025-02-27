@@ -93,6 +93,28 @@ class TestEventHandler(unittest.TestCase):
             },
         )
 
+    def test_store_pub_sub_event_in_bigquery_with_no_parent_question_uuid(self):
+        """Test that an event with no `parent_question_uuid` attribute is handled correctly."""
+        attributes = copy.copy(EVENT_ATTRIBUTES)
+        attributes.pop("parent_question_uuid")
+
+        cloud_event = MockCloudEvent(
+            data={
+                "message": {
+                    "data": base64.b64encode(b'{"kind": "heart", "some": "data"}'),
+                    "attributes": attributes,
+                    "messageId": "1234",
+                }
+            }
+        )
+
+        mock_big_query_client = MockBigQueryClient()
+
+        with patch("functions.event_handler.main.BigQueryClient", return_value=mock_big_query_client):
+            handle_event(cloud_event)
+
+        self.assertIsNone(mock_big_query_client.inserted_rows[0][0]["parent_question_uuid"])
+
     def test_question_is_dispatched_to_kueue(self):
         """Test that questions are dispatched to Kueue correctly."""
         cloud_event = MockCloudEvent(

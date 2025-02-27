@@ -1,6 +1,6 @@
 [project]
 name = "twined-gcp"
-version = "0.7.0"
+version = "0.7.1"
 description = ""
 authors = [
     {name = "Marcus Lugg", email = "marcus@octue.com"}
