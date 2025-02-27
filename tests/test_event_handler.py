@@ -24,7 +24,12 @@ EVENT_ATTRIBUTES = {
     "question_uuid": QUESTION_UUID,
     "parent_question_uuid": "1d897229-155d-498d-b6ae-21960fab3754",
     "originator_question_uuid": "fb6cf9a3-84fb-45ce-a4da-0d2257bec319",
+    "retry_count": 0,
     "forward_logs": True,
+    "save_diagnostics": "SAVE_DIAGNOSTICS_ON_CRASH",
+    "cpus": 1,
+    "memory": "2Gi",
+    "ephemeral_storage": "256Mi",
 }
 
 
@@ -75,9 +80,16 @@ class TestEventHandler(unittest.TestCase):
                 "datetime": "2024-04-11T09:26:39.144818",
                 "uuid": "c8bda9fa-f072-4330-92b1-96920d06b28d",
                 "kind": "heart",
-                "event": {"some": "data"},
+                "event": {
+                    "some": "data",
+                },
                 "other_attributes": {
+                    "retry_count": 0,
                     "forward_logs": True,
+                    "save_diagnostics": "SAVE_DIAGNOSTICS_ON_CRASH",
+                    "cpus": 1,
+                    "memory": "2Gi",
+                    "ephemeral_storage": "256Mi",
                 },
                 "parent": "octue/parent-test-service:5.6.3",
                 "originator": "octue/ancestor-test-service:5.6.3",
