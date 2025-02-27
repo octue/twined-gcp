@@ -129,11 +129,27 @@ class TestEventHandler(unittest.TestCase):
 
     def test_question_is_dispatched_to_kueue(self):
         """Test that questions are dispatched to Kueue correctly."""
+        event_attributes = {
+            "datetime": "2024-04-11T09:26:39.144818",
+            "uuid": "c8bda9fa-f072-4330-92b1-96920d06b28d",
+            "parent": "octue/parent-test-service:5.6.3",
+            "originator": "octue/ancestor-test-service:5.6.3",
+            "sender": "octue/test-service:5.6.3",
+            "sender_type": "PARENT",
+            "sender_sdk_version": "1.0.3",
+            "recipient": SRUID,
+            "question_uuid": QUESTION_UUID,
+            "parent_question_uuid": "1d897229-155d-498d-b6ae-21960fab3754",
+            "originator_question_uuid": "fb6cf9a3-84fb-45ce-a4da-0d2257bec319",
+            "retry_count": "0",
+            "forward_logs": "1",
+        }
+
         cloud_event = MockCloudEvent(
             data={
                 "message": {
                     "data": base64.b64encode(b'{"kind": "question", "input_values": {"some": "data"}}'),
-                    "attributes": copy.copy(EVENT_ATTRIBUTES),
+                    "attributes": copy.copy(event_attributes),
                     "messageId": "1234",
                 }
             }
@@ -152,11 +168,13 @@ class TestEventHandler(unittest.TestCase):
         self.assertEqual(container.name, job.metadata.name)
         self.assertEqual(container.image, f"some-artifact-registry-url/{SRUID}")
         self.assertEqual(container.command, ["octue", "question", "ask", "local"])
+
+        # Check the default resource requirements are used.
         self.assertEqual(container.resources, {"requests": {"cpu": 1, "ephemeral-storage": "1Gi", "memory": "500Mi"}})
 
         self.assertEqual(
             container.args,
-            ["--attributes", json.dumps(EVENT_ATTRIBUTES), "--input-values", '{"some": "data"}'],
+            ["--attributes", json.dumps(event_attributes), "--input-values", '{"some": "data"}'],
         )
 
         environment_variables = [variable.to_dict() for variable in container.env]
