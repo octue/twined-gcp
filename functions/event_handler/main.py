@@ -163,9 +163,6 @@ def _dispatch_question_as_kueue_job(event, attributes, batch_api):
             # Jobs must be suspended at creation for Kueue to manage them.
             suspend=True,
             template=job_template,
-            # Setting a backoff limit of 1 (in combination with a pod restart policy of "never") means we can cancel a
-            # question by deleting its pod.
-            backoff_limit=1,
         ),
     )
 
