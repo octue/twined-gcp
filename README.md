@@ -36,7 +36,7 @@ of this for you.
 | Name                                 | Description                                                                                                                                               |
 | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `BIGQUERY_EVENTS_TABLE`              | The full ID of the BigQuery table to store events in in `<dataset-name>.<table-name>` format                                                              |
-| `OCTUE_SERVICES_TOPIC_NAME`          | The name of the Pub/Sub topic that events are published to in this Octue Twined service network.                                                          |
+| `TWINED_SERVICES_TOPIC_NAME`         | The name of the Pub/Sub topic that events are published to in this Octue Twined service network.                                                          |
 | `KUBERNETES_SERVICE_ACCOUNT_NAME`    | The name of the Kubernetes service account to assign to the Kueue jobs                                                                                    |
 | `KUBERNETES_CLUSTER_ID`              | The ID of the Kubernetes cluster in `projects/<project-id>/locations/<region>/clusters/<cluster-name>` format                                             |
 | `KUEUE_LOCAL_QUEUE`                  | The name of the local queue that jobs are dispatched to by Kueue                                                                                          |
