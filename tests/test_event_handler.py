@@ -40,7 +40,7 @@ class TestEventHandler(unittest.TestCase):
             "os.environ",
             {
                 "BIGQUERY_EVENTS_TABLE": "my-table",
-                "OCTUE_SERVICES_TOPIC_NAME": "test.octue.services",
+                "TWINED_SERVICES_TOPIC_NAME": "test.octue.services",
                 "KUEUE_LOCAL_QUEUE": "test-queue",
                 "ARTIFACT_REGISTRY_REPOSITORY_URL": "some-artifact-registry-url",
                 "KUBERNETES_SERVICE_ACCOUNT_NAME": "kubernetes-sa",
@@ -167,7 +167,7 @@ class TestEventHandler(unittest.TestCase):
         container = job.spec.template["spec"]["containers"][0]
         self.assertEqual(container.name, job.metadata.name)
         self.assertEqual(container.image, f"some-artifact-registry-url/{SRUID}")
-        self.assertEqual(container.command, ["octue", "question", "ask", "local"])
+        self.assertEqual(container.command, ["octue", "twined", "question", "ask", "local"])
 
         # Check the default resource requirements are used.
         self.assertEqual(container.resources, {"requests": {"cpu": 1, "ephemeral-storage": "1Gi", "memory": "500Mi"}})
@@ -182,7 +182,7 @@ class TestEventHandler(unittest.TestCase):
         self.assertEqual(
             environment_variables,
             [
-                {"name": "OCTUE_SERVICES_TOPIC_NAME", "value": "test.octue.services", "value_from": None},
+                {"name": "TWINED_SERVICES_TOPIC_NAME", "value": "test.octue.services", "value_from": None},
                 {"name": "COMPUTE_PROVIDER", "value": "GOOGLE_KUEUE", "value_from": None},
                 {"name": "OCTUE_SERVICE_REVISION_TAG", "value": "1.0.0", "value_from": None},
             ],

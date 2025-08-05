@@ -99,7 +99,7 @@ def _dispatch_question_as_kueue_job(event, attributes, batch_api):
     :param kubernetes.client.BatchV1Api batch_api: the kubernetes batch API
     :return None:
     """
-    octue_services_topic_name = os.environ["OCTUE_SERVICES_TOPIC_NAME"]
+    twined_services_topic_name = os.environ["TWINED_SERVICES_TOPIC_NAME"]
     kubernetes_service_account_name = os.environ["KUBERNETES_SERVICE_ACCOUNT_NAME"]
     kueue_local_queue = os.environ["KUEUE_LOCAL_QUEUE"]
     artifact_registry_repository_url = os.environ["ARTIFACT_REGISTRY_REPOSITORY_URL"]
@@ -133,11 +133,11 @@ def _dispatch_question_as_kueue_job(event, attributes, batch_api):
                 kubernetes.client.V1Container(
                     image=artifact_registry_repository_url + "/" + attributes["recipient"],
                     name=job_name,
-                    command=["octue", "question", "ask", "local"],
+                    command=["octue", "twined", "question", "ask", "local"],
                     args=job_args,
                     resources=resources,
                     env=[
-                        kubernetes.client.V1EnvVar(name="OCTUE_SERVICES_TOPIC_NAME", value=octue_services_topic_name),
+                        kubernetes.client.V1EnvVar(name="TWINED_SERVICES_TOPIC_NAME", value=twined_services_topic_name),
                         kubernetes.client.V1EnvVar(name="COMPUTE_PROVIDER", value=COMPUTE_PROVIDER),
                         kubernetes.client.V1EnvVar(name="OCTUE_SERVICE_REVISION_TAG", value=service_revision_tag),
                     ],
