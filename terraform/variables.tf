@@ -22,8 +22,3 @@ variable "github_organisation" {
   type    = string
   default = "octue"
 }
-
-variable "credentials_file" {
-  type    = string
-  default = "gcp-credentials.json"
-}

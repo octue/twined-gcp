@@ -40,11 +40,3 @@ resource "google_project_service" "iam" {
     update = "40m"
   }
 }
-
-
-provider "google" {
-  credentials = file(var.credentials_file)
-  project     = var.project
-  region      = var.region
-#  zone        = var.zone
-}
