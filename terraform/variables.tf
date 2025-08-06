@@ -5,7 +5,7 @@ variable "organization" {
 
 variable "project" {
   type    = string
-  default = "octue-twined-gcp"
+  default = "octue-twined-gcp-2"
 }
 
 variable "project_number" {
