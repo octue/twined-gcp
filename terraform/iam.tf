@@ -33,7 +33,7 @@ resource "google_iam_workload_identity_pool" "github_actions_pool" {
 
 resource "google_iam_workload_identity_pool_provider" "github_actions_provider" {
   display_name                       = "Github Actions Provider"
-  project                            = var.project_number
+  project                            = data.google_project.project.number
   workload_identity_pool_id          = "github-actions-pool"
   workload_identity_pool_provider_id = "github-actions-provider"
 
@@ -57,7 +57,7 @@ data "google_iam_policy" "github_actions_workload_identity_pool_policy" {
   binding {
     role = "roles/iam.workloadIdentityUser"
     members = [
-      "principalSet://iam.googleapis.com/projects/${var.project_number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github_actions_pool.workload_identity_pool_id}/attribute.repository_owner/${var.github_organisation}"
+      "principalSet://iam.googleapis.com/projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github_actions_pool.workload_identity_pool_id}/attribute.repository_owner/${var.github_organisation}"
     ]
   }
 }

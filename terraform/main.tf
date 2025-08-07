@@ -20,6 +20,9 @@ provider "google" {
 }
 
 
+data "google_project" "project" {}
+
+
 resource "google_project_service" "cloud_resource_manager" {
   project = var.project
   service = "cloudresourcemanager.googleapis.com"
