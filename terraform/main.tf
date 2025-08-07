@@ -14,6 +14,15 @@ terraform {
 }
 
 
+provider "google" {
+  project     = var.project
+  region      = var.region
+}
+
+
+data "google_project" "project" {}
+
+
 resource "google_project_service" "cloud_resource_manager" {
   project = var.project
   service = "cloudresourcemanager.googleapis.com"
@@ -33,12 +42,4 @@ resource "google_project_service" "iam" {
     create = "30m"
     update = "40m"
   }
-}
-
-
-provider "google" {
-  credentials = file(var.credentials_file)
-  project     = var.project
-  region      = var.region
-#  zone        = var.zone
 }

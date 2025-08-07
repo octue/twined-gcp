@@ -5,12 +5,7 @@ variable "organization" {
 
 variable "project" {
   type    = string
-  default = "octue-twined-gcp"
-}
-
-variable "project_number" {
-  type = string
-  default = "899129607296"
+  default = "octue-twined-gcp-2"
 }
 
 variable "region" {
@@ -21,9 +16,4 @@ variable "region" {
 variable "github_organisation" {
   type    = string
   default = "octue"
-}
-
-variable "credentials_file" {
-  type    = string
-  default = "gcp-credentials.json"
 }
