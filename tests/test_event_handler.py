@@ -167,6 +167,7 @@ class TestEventHandler(unittest.TestCase):
         container = job.spec.template["spec"]["containers"][0]
         self.assertEqual(container.name, job.metadata.name)
         self.assertEqual(container.image, f"some-artifact-registry-url/{SRUID}")
+        self.assertEqual(container.command, ["octue", "twined", "question", "ask-local"])
 
         # Check the default resource requirements are used.
         self.assertEqual(container.resources, {"requests": {"cpu": 1, "ephemeral-storage": "1Gi", "memory": "500Mi"}})
