@@ -133,6 +133,7 @@ def _dispatch_question_as_kueue_job(event, attributes, batch_api):
                 kubernetes.client.V1Container(
                     image=artifact_registry_repository_url + "/" + attributes["recipient"],
                     name=job_name,
+                    command=["octue", "twined", "question", "ask-local"],
                     args=job_args,
                     resources=resources,
                     env=[
